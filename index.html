@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f0f0f">
+  <title>Dishonesty · Real Local AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --sidebar-bg: #111111;
+      --panel: #161616;
+      --panel-hover: #222222;
+      --border: #242424;
+      --text: #ededed;
+      --text-muted: #888888;
+      --accent: #6366f1; /* Indigo */
+      --accent-hover: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --font-sans: "Figtree", -apple-system, system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", monospace;
+      --radius: 12px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+
+    button { cursor: pointer; }
+
+    /* App Layout */
+    .app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 32px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .app-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #a855f7);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: white;
+      font-size: 20px;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .app-name {
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.04em;
+    }
+
+    .nav-list {
+      flex: 1;
+      padding: 0 12px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .nav-icon { font-size: 20px; }
+
+    .sidebar-footer {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .engine-card {
+      background: var(--panel);
+      padding: 14px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+
+    .status-badge.webgpu { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-badge.cpu { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .status-badge.offline { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-width: 0;
+    }
+
+    .top-bar {
+      height: 64px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+      background: rgba(11, 11, 11, 0.7);
+      z-index: 50;
+    }
+
+    .model-picker-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    .model-picker-btn:hover {
+      border-color: var(--accent);
+      background: var(--panel-hover);
+    }
+
+    /* Pages */
+    .page {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .page.active { display: flex; flex-direction: column; }
+
+    /* Chat View */
+    .chat-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1000px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    .message-list {
+      flex: 1;
+      padding: 32px 24px 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .message {
+      display: flex;
+      gap: 20px;
+      max-width: 100%;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .msg-user .msg-avatar { background: #333; color: white; }
+    .msg-ai .msg-avatar { background: linear-gradient(135deg, var(--accent), #a855f7); color: white; }
+
+    .msg-content {
+      flex: 1;
+      line-height: 1.6;
+      font-size: 16px;
+      white-space: pre-wrap;
+      padding-top: 6px;
+    }
+
+    .msg-meta {
+      display: block;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Composer */
+    .composer-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px;
+      background: linear-gradient(to top, var(--bg) 60%, transparent);
+    }
+
+    .composer-box {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 12px 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.3s;
+    }
+
+    .composer-box:focus-within { border-color: var(--accent); }
+
+    .textarea-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .chat-input {
+      flex: 1;
+      min-height: 24px;
+      max-height: 200px;
+      resize: none;
+      padding: 8px 4px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    .send-btn:disabled {
+      background: #222;
+      color: #555;
+      cursor: not-allowed;
+    }
+
+    /* Library Hub */
+    .library-hub {
+      padding: 48px 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .model-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .model-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+
+    .model-card.unavailable {
+      opacity: 0.4;
+      filter: grayscale(1);
+      cursor: not-allowed;
+    }
+
+    .model-card.unavailable:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    .model-title {
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .model-type {
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+    }
+
+    .model-type.real { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+
+    .progress-bar {
+      height: 6px;
+      background: #222;
+      border-radius: 3px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 14px 28px;
+      border-radius: 100px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Welcome Screen */
+    .welcome-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .welcome-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .welcome-center h1 {
+      font-size: 42px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      letter-spacing: -0.05em;
+    }
+
+    .welcome-center p {
+      color: var(--text-muted);
+      max-width: 500px;
+      line-height: 1.6;
+      font-size: 18px;
+    }
+
+    /* Mobile */
+    @media (max-width: 800px) {
+      .sidebar { position: absolute; transform: translateX(-100%); height: 100%; }
+      .app-container.sidebar-open .sidebar { transform: translateX(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container" id="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="app-logo">D</div>
+        <div class="app-name">Dishonesty</div>
+      </div>
+
+      <nav class="nav-list">
+        <a href="#chat" class="nav-item active" data-route="chat">
+          <span class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </span>
+          <span>Conversations</span>
+        </a>
+        <a href="#library" class="nav-item" data-route="library">
+          <span class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+          </span>
+          <span>Model Hub</span>
+        </a>
+        <a href="#settings" class="nav-item" data-route="settings">
+          <span class="nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+          <span>Runtime Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div id="protocol-warning" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid var(--error); padding:10px; border-radius:var(--radius); margin-bottom:12px; font-size:11px; color:var(--error); line-height:1.4;">
+          <strong>Security Limitation</strong><br>
+          Browser security blocks AI models on <code>file://</code>. Please use a local server (e.g. <code>npx serve</code>).
+        </div>
+        <div class="engine-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>AI Status</span>
+            <span id="engine-badge" class="status-badge offline">Initializing</span>
+          </div>
+          <div id="vram-info" style="color:var(--text-muted); font-size:11px; display:none;">
+            WebGPU Active · <span id="vram-text">--</span> VRAM used
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-bar">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <button id="menu-btn" style="display:none; padding:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+          </button>
+          <div style="display:flex; flex-direction:column;">
+            <span style="font-weight:800; font-size:15px;" id="header-title">Chat</span>
+            <span id="current-model-info" style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">No model loaded</span>
+          </div>
+        </div>
+
+        <button class="model-picker-btn" onclick="location.hash='#library'">
+          <span id="active-model-name">Select Model</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </header>
+
+      <!-- Chat Page -->
+      <section class="page active" id="page-chat">
+        <div class="chat-view">
+          <div class="message-list" id="message-list">
+            <div class="welcome-center" id="welcome-screen">
+              <div class="welcome-icon" style="color:var(--accent);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="m17 5 4 0"/><path d="M21 11v4"/><path d="m19 13 4 0"/></svg>
+              </div>
+              <h1>Real Local Intelligence</h1>
+              <p>Qwen2.5 models running directly on your hardware via WebGPU. Private. Unfiltered. Fast.</p>
+              
+              <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; width:100%; max-width:600px; margin-top:40px;">
+                <button class="model-picker-btn" style="justify-content:center; border-radius:12px; padding:20px; background:var(--accent); color:white; border:none;" onclick="location.hash='#library'">
+                  <strong>Setup Portable Models</strong>
+                </button>
+                <button class="model-picker-btn" style="justify-content:center; border-radius:12px; padding:20px;" onclick="setPrompt('How do I move these models to another device?')">
+                  <strong>Portability Guide</strong>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="composer-wrapper">
+            <form class="composer-box" id="composer-form">
+              <div class="textarea-container">
+                <textarea class="chat-input" id="chat-input" placeholder="Message Dishonesty..." rows="1"></textarea>
+                <button class="send-btn" id="send-btn" type="submit" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                </button>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <span id="engine-hint" style="font-size:11px; color:var(--text-muted);">Engine: Waiting...</span>
+                <span id="stream-status" style="font-size:11px; color:var(--accent); font-weight:700;"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Library Page -->
+      <section class="page" id="page-library">
+        <div class="library-hub">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="font-size:32px; font-weight:900; letter-spacing:-0.04em;">Model Hub</h1>
+              <p style="color:var(--text-muted); font-size:16px;">Download, activate, and export real Qwen models.</p>
+            </div>
+            <button class="model-picker-btn" style="background:var(--accent); color:white; border:none;" onclick="window.exportAllModels()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Export All Models (ZIP)
+            </button>
+          </div>
+          
+          <div class="hub-grid" id="hub-grid">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div style="margin-top:48px; padding:32px; border:2px dashed var(--border); border-radius:24px; text-align:center;" id="drop-zone">
+            <input type="file" id="file-input" accept=".zip" style="display:none;">
+            <div style="margin-bottom:12px; color:var(--text-muted);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            </div>
+            <h3 style="font-weight:800;">Import Local Model Pack</h3>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Drop a .zip containing model.json from your folder to add a custom knowledge base.</p>
+            <button class="model-picker-btn" style="margin:0 auto;" onclick="$('#file-input').click()">Choose ZIP File</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings Page -->
+      <section class="page" id="page-settings">
+        <div class="library-hub" style="max-width:800px;">
+          <h1 style="font-size:32px; font-weight:900;">Runtime Configuration</h1>
+          
+          <div style="display:flex; flex-direction:column; gap:40px; margin-top:40px;">
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; justify-content:space-between; font-weight:700;">
+                <span>Temperature (Creativity)</span>
+                <span id="temp-display" style="color:var(--accent);">0.7</span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" value="0.7" id="setting-temp" style="width:100%; accent-color:var(--accent);">
+              <span style="font-size:12px; color:var(--text-muted);">Lower for facts, higher for creativity.</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; justify-content:space-between; font-weight:700;">
+                <span>Quantization Depth</span>
+                <span style="color:var(--success);">4-bit (Extreme)</span>
+              </div>
+              <p style="font-size:12px; color:var(--text-muted);">Using 4-bit (q4f16) ensures models fit in VRAM and run fast on Chromebooks.</p>
+            </div>
+
+            <button class="model-picker-btn" style="justify-content:center; color:var(--error); border-color:var(--error); margin-top:40px;" onclick="clearCache()">
+              Clear Model Cache
+            </button>
+
+            <div style="margin-top:20px; text-align:center;">
+              <a href="https://h3nry.xyz" target="_blank" style="text-decoration:none; color:var(--text-muted); font-size:14px; font-weight:600; opacity:0.6; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                (a thing by h3)
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    // Import Transformers.js v3 via ESM
+    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
+
+    // --- Transformers.js Configuration ---
+    env.allowLocalModels = true;
+    env.useBrowserCache = true;
+    env.remoteHost = 'https://huggingface.co/';
+    env.remotePathTemplate = '{model}/resolve/{revision}/';
+
+    // --- State ---
+    const MODELS = [
+      {
+        id: 'qwen-0.5b',
+        name: 'Qwen 2.5 0.5B',
+        repo: 'onnx-community/Qwen2.5-0.5B-Instruct',
+        type: 'real',
+        size: '350MB',
+        desc: 'Ultra-lightweight real LLM. Perfect for Chromebooks and weak GPUs.',
+        device: 'webgpu',
+        dtype: 'q4'
+      },
+      {
+        id: 'qwen-coder-0.5b',
+        name: 'Qwen 2.5 Coder 0.5B',
+        repo: 'onnx-community/Qwen2.5-Coder-0.5B-Instruct',
+        type: 'real',
+        size: '400MB',
+        desc: 'Specialized for coding tasks. Fast and efficient.',
+        device: 'webgpu',
+        dtype: 'q4'
+      }
+    ];
+
+    const state = {
+      activeModelId: null,
+      generator: null,
+      isGenerating: false,
+      temp: 0.7,
+      history: [],
+      availableModelIds: new Set()
+    };
+
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    const els = {
+      badge: $('#engine-badge'),
+      list: $('#message-list'),
+      welcome: $('#welcome-screen'),
+      input: $('#chat-input'),
+      send: $('#send-btn'),
+      form: $('#composer-form'),
+      hub: $('#hub-grid'),
+      modelInfo: $('#current-model-info'),
+      activeName: $('#active-model-name'),
+      hint: $('#engine-hint')
+    };
+
+    // --- ZIP Utilities ---
+    async function readZipModel(blob) {
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      const view = new DataView(bytes.buffer);
+      const decoder = new TextDecoder();
+      let eocd = -1;
+      for (let i = bytes.length - 22; i >= 0; i--) {
+        if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+      }
+      if (eocd < 0) throw new Error("Invalid ZIP");
+      const count = view.getUint16(eocd + 10, true);
+      let ptr = view.getUint32(eocd + 16, true);
+      for (let i = 0; i < count; i++) {
+        const nameLen = view.getUint16(ptr + 28, true);
+        const extraLen = view.getUint16(ptr + 30, true);
+        const commLen = view.getUint16(ptr + 32, true);
+        const locOff = view.getUint32(ptr + 42, true);
+        const name = decoder.decode(bytes.slice(ptr + 46, ptr + 46 + nameLen));
+        if (name.toLowerCase().endsWith("model.json")) {
+          const locNameLen = view.getUint16(locOff + 26, true);
+          const locExtraLen = view.getUint16(locOff + 28, true);
+          const start = locOff + 30 + locNameLen + locExtraLen;
+          const data = bytes.slice(start, start + view.getUint32(ptr + 20, true));
+          return JSON.parse(decoder.decode(data));
+        }
+        ptr += 46 + nameLen + extraLen + commLen;
+      }
+      throw new Error("model.json not found");
+    }
+
+    // --- Core Logic ---
+    async function init() {
+      if (location.protocol === 'file:') {
+        $('#protocol-warning').style.display = 'block';
+        showToast("Local server required for models.");
+      }
+      
+      checkWebGPU();
+      await checkAvailability();
+      renderHub();
+      handleRouting();
+      
+      window.addEventListener('online', async () => {
+        await checkAvailability();
+        renderHub();
+      });
+      window.addEventListener('offline', async () => {
+        await checkAvailability();
+        renderHub();
+      });
+      
+      $('#file-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        showToast(`Importing ${file.name}...`);
+        try {
+          const data = await readZipModel(file);
+          const id = `custom-${Date.now()}`;
+          MODELS.push({
+            id,
+            name: data.name || file.name,
+            type: 'sim',
+            size: 'Local',
+            desc: data.description || 'Imported custom pack.',
+            corpus: data.corpus || []
+          });
+          renderHub();
+          loadModel(id);
+          showToast("Pack imported and activated!");
+          location.hash = '#chat';
+        } catch (err) {
+          showToast("Error: " + err.message);
+        }
+      });
+
+      window.addEventListener('hashchange', handleRouting);
+      
+      els.input.addEventListener('input', () => {
+        els.send.disabled = !els.input.value.trim() || state.isGenerating;
+        autoResize();
+      });
+
+      els.form.addEventListener('submit', handleSend);
+      
+      $('#setting-temp').addEventListener('input', (e) => {
+        state.temp = parseFloat(e.target.value);
+        $('#temp-display').textContent = state.temp;
+      });
+    }
+
+    async function checkWebGPU() {
+      if ('gpu' in navigator) {
+        try {
+          const adapter = await navigator.gpu.requestAdapter();
+          if (adapter) {
+            els.badge.textContent = 'WebGPU Ready';
+            els.badge.className = 'status-badge webgpu';
+            $('#vram-info').style.display = 'block';
+            return true;
+          }
+        } catch (e) {}
+      }
+      els.badge.textContent = 'CPU Mode';
+      els.badge.className = 'status-badge cpu';
+      return false;
+    }
+
+    async function loadModel(id) {
+      const model = MODELS.find(m => m.id === id);
+      if (!model) return;
+
+      if (state.activeModelId === id && state.generator) return;
+
+      showToast(`Activating ${model.name}...`);
+      els.hint.textContent = `Loading ${model.name}...`;
+      state.activeModelId = id;
+      state.generator = null; // Clear old
+
+      if (model.type === 'real') {
+        try {
+          state.generator = await pipeline('text-generation', model.repo, {
+            device: model.device,
+            dtype: model.dtype,
+            progress_callback: (p) => updateProgress(id, p)
+          });
+          els.badge.textContent = 'Real LLM Active';
+          els.hint.textContent = `${model.name} (Real) Ready`;
+        } catch (e) {
+          console.error(e);
+          showToast("WebGPU failed. Retrying in CPU mode...");
+          state.generator = await pipeline('text-generation', model.repo, {
+            device: 'cpu',
+            progress_callback: (p) => updateProgress(id, p)
+          });
+          els.badge.textContent = 'Real LLM (CPU)';
+        }
+      } else {
+        // Simulation engine
+        state.generator = { type: 'sim', model };
+        els.badge.textContent = 'Sim Engine Active';
+        els.hint.textContent = 'Simulation Active';
+      }
+
+      els.activeName.textContent = model.name;
+      els.modelInfo.textContent = `${model.name} · ${model.type === 'real' ? '4-bit WebGPU' : 'Local Markov'}`;
+      renderHub();
+      showToast(`${model.name} is ready`);
+    }
+
+    function updateProgress(id, p) {
+      const card = $(`[data-id="${id}"]`);
+      if (!card) return;
+      const bar = card.querySelector('.progress-bar');
+      const fill = card.querySelector('.progress-fill');
+      if (p.status === 'progress') {
+        bar.style.display = 'block';
+        fill.style.width = `${p.progress}%`;
+      } else if (p.status === 'done') {
+        bar.style.display = 'none';
+      }
+    }
+
+    async function handleSend(e) {
+      e.preventDefault();
+      const prompt = els.input.value.trim();
+      if (!prompt || state.isGenerating) return;
+
+      if (!state.generator) {
+        showToast("Please select a model first!");
+        location.hash = '#library';
+        return;
+      }
+
+      addMessage('user', prompt);
+      els.input.value = '';
+      autoResize();
+      
+      state.isGenerating = true;
+      els.send.disabled = true;
+      els.hint.textContent = "Thinking...";
+
+      try {
+        if (state.generator.type === 'sim') {
+          // Simulation response from corpus
+          const aiMsg = addMessage('ai', '', 'Simulation Engine');
+          setTimeout(() => {
+            const corpus = state.generator.model.corpus || ["No knowledge in this pack."];
+            const reply = corpus[Math.floor(Math.random() * corpus.length)];
+            aiMsg.update(reply);
+            finishGen();
+          }, 500);
+        } else {
+          // Real LLM Generation with Streaming and TPS
+          const messages = [
+            { role: "system", content: "You are Dishonesty, a helpful but blunt local AI. You provide concise, direct answers." },
+            { role: "user", content: prompt }
+          ];
+
+          const aiMsg = addMessage('ai', '...', 'Initializing...');
+          let fullText = "";
+          let tokenCount = 0;
+          const startTime = performance.now();
+
+          const output = await state.generator(messages, {
+            max_new_tokens: 512,
+            temperature: state.temp,
+            on_chunk: (chunk) => {
+              const content = chunk.choices[0]?.delta?.content || "";
+              if (content) {
+                fullText += content;
+                tokenCount++;
+                const elapsed = (performance.now() - startTime) / 1000;
+                const tps = (tokenCount / elapsed).toFixed(1);
+                aiMsg.update(fullText, `${MODELS.find(m => m.id === state.activeModelId).name} · ${tps} t/s`);
+              }
+            }
+          });
+
+          // Final update to ensure full text and correct meta
+          const totalElapsed = (performance.now() - startTime) / 1000;
+          const finalTps = (tokenCount / totalElapsed).toFixed(1);
+          aiMsg.update(fullText, `${MODELS.find(m => m.id === state.activeModelId).name} · Real Inference · ${finalTps} t/s`);
+          finishGen();
+        }
+      } catch (e) {
+        console.error(e);
+        addMessage('ai', "Error: Model failed to generate. Check console for details.");
+        finishGen();
+      }
+    }
+
+    function finishGen() {
+      state.isGenerating = false;
+      els.send.disabled = false;
+      els.hint.textContent = "Engine Ready";
+    }
+
+    // --- UI Helpers ---
+    function addMessage(role, text, meta) {
+      els.welcome.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = `message msg-${role}`;
+      div.innerHTML = `
+        <div class="msg-avatar">${role === 'ai' ? 'D' : 'U'}</div>
+        <div class="msg-content">
+          <span class="text-container">${text}</span>
+          <span class="msg-meta">${meta || ''}</span>
+        </div>
+      `;
+      els.list.appendChild(div);
+      div.scrollIntoView({ behavior: 'smooth' });
+
+      return {
+        update: (newText, newMeta) => {
+          div.querySelector('.text-container').textContent = newText;
+          if (newMeta) div.querySelector('.msg-meta').textContent = newMeta;
+          div.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+    }
+
+    async function checkAvailability() {
+      state.availableModelIds.clear();
+      try {
+        const cacheNames = await caches.keys();
+        const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
+        if (transformersCache) {
+          const cache = await caches.open(transformersCache);
+          const keys = await cache.keys();
+          for (const model of MODELS) {
+            const isCached = keys.some(k => k.url.includes(model.repo.split('/')[1]));
+            if (isCached) state.availableModelIds.add(model.id);
+          }
+        }
+      } catch (e) {}
+      if (navigator.onLine) {
+        for (const model of MODELS) state.availableModelIds.add(model.id);
+      }
+    }
+
+    function renderHub() {
+      els.hub.innerHTML = MODELS.map(m => {
+        const isAvailable = state.availableModelIds.has(m.id);
+        const isActive = state.activeModelId === m.id;
+        return `
+          <div class="model-card ${isActive ? 'active' : ''} ${!isAvailable ? 'unavailable' : ''}" data-id="${m.id}">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span class="model-title">${m.name}</span>
+                <span class="model-type ${m.type}">${m.type === 'real' ? 'Transformers · WebGPU' : 'Simulation'}</span>
+              </div>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">${m.size}</span>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">${m.desc}</p>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <button class="model-picker-btn" style="width:100%; justify-content:center; border-radius:10px;" 
+              onclick="window.loadModel('${m.id}')" ${isActive || (!isAvailable && !navigator.onLine) ? 'disabled' : ''}>
+              ${isActive ? 'Active' : (isAvailable ? 'Activate Model' : 'Download Required')}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleRouting() {
+      const route = location.hash.replace('#', '') || 'chat';
+      $$('.page').forEach(p => p.classList.toggle('active', p.id === `page-${route}`));
+      $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.route === route));
+      $('#header-title').textContent = route.charAt(0).toUpperCase() + route.slice(1);
+    }
+
+    window.setPrompt = (p) => {
+      els.input.value = p;
+      autoResize();
+      location.hash = '#chat';
+      els.input.focus();
+    };
+
+    window.loadModel = loadModel;
+
+    // --- Model Export Logic ---
+    window.exportAllModels = async () => {
+      showToast("Preparing export... this may take a moment.");
+      try {
+        // Dynamically load JSZip for exporting
+        if (typeof JSZip === 'undefined') {
+          await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+        }
+        
+        const zip = new JSZip();
+        const cacheNames = await caches.keys();
+        const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
+        
+        if (!transformersCache) {
+          showToast("No cached models found to export.");
+          return;
+        }
+
+        const cache = await caches.open(transformersCache);
+        const keys = await cache.keys();
+        
+        if (keys.length === 0) {
+          showToast("Model cache is empty.");
+          return;
+        }
+
+        for (const request of keys) {
+          const response = await cache.match(request);
+          const blob = await response.blob();
+          const url = new URL(request.url);
+          // Create a clean path from the URL
+          const path = url.pathname.replace(/^\//, '');
+          zip.file(path, blob);
+        }
+
+        showToast("Compressing models...");
+        const content = await zip.generateAsync({type: "blob"});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = "dishonesty-models-portable.zip";
+        link.click();
+        showToast("Export complete!");
+      } catch (err) {
+        console.error(err);
+        showToast("Export failed: " + err.message);
+      }
+    };
+    window.clearCache = async () => {
+      if (confirm("This will clear all downloaded models from your browser cache. Continue?")) {
+        const cacheNames = await caches.keys();
+        for (const name of cacheNames) await caches.delete(name);
+        showToast("Cache cleared. Page will reload.");
+        location.reload();
+      }
+    };
+
+    function autoResize() {
+      els.input.style.height = 'auto';
+      els.input.style.height = Math.min(els.input.scrollHeight, 200) + 'px';
+    }
+
+    function showToast(msg) {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

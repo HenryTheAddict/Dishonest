@@ -1,0 +1,22 @@
+{
+  "name": "Qwen Tiny Offline",
+  "description": "Root ZIP preset for h3 local ai. Tiny offline helper tuned for weak Chromebooks.",
+  "corpus": [
+    "qwen tiny offline root zip is a small local preset for this html app",
+    "real qwen weights are larger and need a heavier runtime than a single html file",
+    "a four gigabyte chromebook works best with small prompts small packs and low output length",
+    "offline ai should keep prompts answers and packs on the device whenever possible",
+    "this root zip lets the app point to a real file in the project root when fetch is allowed",
+    "if root zip loading fails the app should fall back to the embedded preset and stay usable"
+  ],
+  "intents": {
+    "qwen": [
+      "This is the root ZIP version of the tiny Qwen-style preset. It is still lightweight and local-first.",
+      "The app will prefer this root ZIP when it can fetch local assets, then fall back to the embedded preset if needed."
+    ],
+    "offline": [
+      "This preset is meant for offline use after the files are already on your device.",
+      "For the cleanest offline setup, keep the HTML and these ZIPs together in the project root."
+    ]
+  }
+}

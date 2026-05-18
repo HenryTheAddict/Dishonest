@@ -1,0 +1,21 @@
+{
+  "name": "Qwen Study Pack",
+  "description": "Root ZIP preset for summaries, flashcards, and tiny offline note workflows.",
+  "corpus": [
+    "study packs work best when the notes are short specific and focused on one class",
+    "offline studying can be calmer because the browser is not reaching out to a remote api",
+    "zip model packs are useful because the app can point to root files or import them manually",
+    "small local assistants are good at summarizing your own notes and making quick quizzes"
+  ],
+  "intents": {
+    "summarize": [
+      "Short version: keep the key facts, remove fluff, and write in review language."
+    ],
+    "quiz": [
+      "Turn each important note into one direct question and one short answer."
+    ],
+    "study": [
+      "This root ZIP study preset is best when paired with a tiny class-specific corpus."
+    ]
+  }
+}

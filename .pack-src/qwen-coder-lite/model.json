@@ -1,0 +1,20 @@
+{
+  "name": "Qwen Coder Lite",
+  "description": "Root ZIP preset focused on short HTML, CSS, and JavaScript help.",
+  "corpus": [
+    "qwen coder lite answers short code questions without needing a server",
+    "small chromebook friendly coding help should keep dom updates simple and validate imports carefully",
+    "offline web apps should avoid remote assets and keep heavy work in a worker",
+    "a chat style app should own its scroll regions and avoid accidental horizontal overflow",
+    "root zip presets let the app load model files from the project root when fetch works"
+  ],
+  "intents": {
+    "code": [
+      "Here is the root ZIP coding preset speaking: keep the implementation scoped and local.",
+      "For code tasks here, prefer clear DOM ownership, no CDNs, and careful input validation."
+    ],
+    "css": [
+      "CSS-wise, the biggest fix was giving the app shell stable scroll ownership and blocking horizontal overflow."
+    ]
+  }
+}
