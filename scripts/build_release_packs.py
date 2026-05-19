@@ -86,10 +86,11 @@ def add_model_to_zip(zf: zipfile.ZipFile, model_dir: Path, repo: str) -> None:
         zf.write(path, archive_name, compress_type=zipfile.ZIP_STORED)
 
 
-def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: list[dict], download: bool) -> None:
-    pack_path = dist / f"dishonesty-model-pack-{pack_name}.zip"
+def write_one_pack(dist: Path, cache_dir: Path, pack_name: str, models: list[dict], download: bool, suffix: str = "") -> Path:
+    pack_path = dist / f"dishonesty-model-pack-{pack_name}{suffix}.zip"
     manifest = {
         "pack": pack_name,
+        "part": suffix.lstrip("-") or "single",
         "format": "transformers-cache-v1",
         "models": models,
         "import": "Open Study Tools, go to Model Hub, click Import Release Pack, then choose this zip.",
@@ -104,13 +105,28 @@ def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: 
                 snapshot_model(repo, model_dir)
             if model_dir.exists():
                 add_model_to_zip(zf, model_dir, repo)
+    return pack_path
+
+
+def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: list[dict], download: bool) -> None:
+    written = []
+    if len(models) == 1:
+        written.append(write_one_pack(dist, cache_dir, pack_name, models, download))
+    else:
+        for index, model in enumerate(models, start=1):
+            safe_id = model["id"].replace("_", "-")
+            suffix = f"-part-{index:02d}-{safe_id}"
+            written.append(write_one_pack(dist, cache_dir, pack_name, [model], download, suffix))
 
     readme = dist / f"dishonesty-model-pack-{pack_name}.txt"
     readme.write_text(
         f"Dishonesty {pack_name} model pack\n\n"
-        "Import this ZIP in Model Hub using Import Release Pack.\n"
-        "The ZIP is stored, not compressed, so the browser can import it without extra libraries.\n\n"
+        "Import each listed ZIP in Model Hub using Import Release Pack.\n"
+        "Multi-model packs are split so GitHub can host them under its release asset size limit.\n"
+        "The ZIPs are stored, not compressed, so the browser can import them without extra libraries.\n\n"
         + "\n".join(f"- {m['name']} ({m['repo']})" for m in models)
+        + "\n\nAssets:\n"
+        + "\n".join(f"- {path.name}" for path in written)
         + "\n",
         encoding="utf-8",
     )

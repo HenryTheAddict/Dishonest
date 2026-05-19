@@ -53,15 +53,10 @@ jobs:
             Assets:
             - `dishonesty-app.zip`: app only.
             - `dishonesty-model-pack-small.zip`: smallest recommended model pack.
-            - `dishonesty-model-pack-good.zip`: stronger general/coder pack.
-            - `dishonesty-model-pack-all.zip`: every listed model.
+            - `dishonesty-model-pack-good-*.zip`: stronger general/coder pack, split into importable parts.
+            - `dishonesty-model-pack-all-*.zip`: every listed model, split into importable parts.
 
-            Import a model pack from Model Hub with **Import Release Pack**.
+            Import each model pack ZIP from Model Hub with **Import Release Pack**.
           files: |
-            dist/dishonesty-app.zip
-            dist/dishonesty-model-pack-small.zip
-            dist/dishonesty-model-pack-small.txt
-            dist/dishonesty-model-pack-good.zip
-            dist/dishonesty-model-pack-good.txt
-            dist/dishonesty-model-pack-all.zip
-            dist/dishonesty-model-pack-all.txt
+            dist/*.zip
+            dist/*.txt
