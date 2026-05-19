@@ -1076,6 +1076,7 @@
       dtype: 'q4',
       systemPrompt: 'You are a helpful study and coding assistant. Be concise, practical, and clear. Use Markdown for lists, code blocks, and important formatting. When local tool results are provided, use them instead of guessing.',
       abortController: null,
+      autoImporting: false,
       history: [],
       cachedModelIds: new Set(),
       availableModelIds: new Set()
@@ -1115,6 +1116,7 @@
       await checkAvailability();
       renderHub();
       handleRouting();
+      autoImportLocalModelPacks();
       const savedModelId = localStorage.getItem('dishonesty-active-model');
       if (savedModelId && state.cachedModelIds.has(savedModelId)) {
         loadModel(savedModelId);
@@ -1738,6 +1740,31 @@
       }
     };
 
+    async function autoImportLocalModelPacks() {
+      if (state.autoImporting || localStorage.getItem('dishonesty-auto-import-v2') === 'done') return;
+      if (location.protocol === 'file:') return;
+      state.autoImporting = true;
+
+      let importedTotal = 0;
+      for (const name of AUTO_MODEL_PACKS) {
+        try {
+          const response = await fetch(name, { cache: 'no-store' });
+          if (!response.ok) continue;
+          const blob = await response.blob();
+          const imported = await importModelPackBlob(blob, name, { quiet: true });
+          importedTotal += imported;
+        } catch (e) {}
+      }
+
+      state.autoImporting = false;
+      localStorage.setItem('dishonesty-auto-import-v2', 'done');
+      if (importedTotal) {
+        await checkAvailability();
+        renderHub();
+        showToast(`Auto-imported ${importedTotal} local model files.`);
+      }
+    }
+
     async function importModelPack(event) {
       const file = event.target.files?.[0];
       event.target.value = '';
@@ -1745,21 +1772,7 @@
 
       showToast(`Importing ${file.name}...`);
       try {
-        const entries = await readStoredZip(file);
-        const cache = await caches.open('transformers-cache');
-        let imported = 0;
-
-        for (const entry of entries) {
-          if (entry.name.endsWith('/') || entry.name.startsWith('__MACOSX/')) continue;
-          const normalized = entry.name.replace(/^models\//, '').replace(/^\/+/, '');
-          if (!normalized.includes('/resolve/')) continue;
-          const url = `https://huggingface.co/${normalized}`;
-          await cache.put(new Request(url), new Response(entry.bytes, {
-            headers: { 'Content-Type': guessContentType(normalized) }
-          }));
-          imported++;
-        }
-
+        const imported = await importModelPackBlob(file, file.name);
         await checkAvailability();
         renderHub();
         showToast(imported ? `Imported ${imported} model files.` : 'No Hugging Face model files found in ZIP.');
@@ -1769,8 +1782,28 @@
       }
     }
 
-    async function readStoredZip(file) {
-      const bytes = new Uint8Array(await file.arrayBuffer());
+    async function importModelPackBlob(blob, label, options = {}) {
+      const entries = await readStoredZip(blob);
+      const cache = await caches.open('transformers-cache');
+      let imported = 0;
+
+      for (const entry of entries) {
+        if (entry.name.endsWith('/') || entry.name.startsWith('__MACOSX/')) continue;
+        const normalized = entry.name.replace(/^models\//, '').replace(/^\/+/, '');
+        if (!normalized.includes('/resolve/')) continue;
+        const url = `https://huggingface.co/${normalized}`;
+        await cache.put(new Request(url), new Response(entry.bytes, {
+          headers: { 'Content-Type': guessContentType(normalized) }
+        }));
+        imported++;
+      }
+
+      if (imported && !options.quiet) showToast(`Imported ${label}.`);
+      return imported;
+    }
+
+    async function readStoredZip(blob) {
+      const bytes = new Uint8Array(await blob.arrayBuffer());
       const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
       const decoder = new TextDecoder();
       const entries = [];
@@ -1797,6 +1830,17 @@
       if (!entries.length) throw new Error('No ZIP entries found.');
       return entries;
     }
+
+    const AUTO_MODEL_PACKS = [
+      'models.zip',
+      'dishonesty-models-portable.zip',
+      'dishonesty-model-pack-small.zip',
+      'dishonesty-model-pack-good.zip',
+      'dishonesty-model-pack-all.zip',
+      ...['small', 'good', 'all'].flatMap(pack =>
+        Array.from({ length: 12 }, (_, i) => `dishonesty-model-pack-${pack}-part-${String(i + 1).padStart(2, '0')}.zip`)
+      )
+    ];
 
     function guessContentType(path) {
       if (path.endsWith('.json')) return 'application/json';

@@ -34,3 +34,5 @@ GitHub Actions builds release assets:
 - `dishonesty-model-pack-all.zip`: every listed model
 
 Model packs are stored ZIPs that can be imported from Model Hub with **Import Release Pack**. The importer writes files into the browser `transformers-cache`, then the app detects cached models automatically.
+
+If the app is served from a local folder or static host, it also tries to auto-import known same-folder pack names such as `models.zip`, `dishonesty-model-pack-small.zip`, and split release parts like `dishonesty-model-pack-all-part-01.zip`. Browsers do not allow this kind of automatic folder access from plain `file://`, so use **Import Release Pack** there.
