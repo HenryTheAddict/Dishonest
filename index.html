@@ -5,24 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0f0f0f">
   <title>Dishonesty · Real Local AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0b0b;
-      --sidebar-bg: #111111;
-      --panel: #161616;
-      --panel-hover: #222222;
-      --border: #242424;
+      --bg: #090a0c;
+      --sidebar-bg: #0f1115;
+      --panel: #171a20;
+      --panel-hover: #202530;
+      --border: #29303a;
       --text: #ededed;
       --text-muted: #888888;
-      --accent: #6366f1; /* Indigo */
-      --accent-hover: #818cf8;
+      --accent: #42d392;
+      --accent-2: #4f8cff;
+      --accent-hover: #6ee7b7;
       --success: #10b981;
       --warning: #f59e0b;
       --error: #ef4444;
-      --font-sans: "Figtree", -apple-system, system-ui, sans-serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       --font-mono: "JetBrains Mono", monospace;
       --radius: 12px;
       --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -34,7 +32,10 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(66, 211, 146, 0.12), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(79, 140, 255, 0.1), transparent 34rem),
+        var(--bg);
       color: var(--text);
       font-family: var(--font-sans);
       -webkit-font-smoothing: antialiased;
@@ -80,14 +81,14 @@
     .app-logo {
       width: 36px;
       height: 36px;
-      background: linear-gradient(135deg, var(--accent), #a855f7);
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
       border-radius: 10px;
       display: grid;
       place-items: center;
       font-weight: 900;
       color: white;
       font-size: 20px;
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+      box-shadow: 0 0 15px rgba(66, 211, 146, 0.22);
     }
 
     .app-name {
@@ -123,7 +124,7 @@
 
     .nav-item.active {
       color: var(--accent);
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(66, 211, 146, 0.1);
     }
 
     .nav-icon { font-size: 20px; }
@@ -156,7 +157,8 @@
 
     .status-badge.webgpu { background: rgba(16, 185, 129, 0.15); color: var(--success); }
     .status-badge.cpu { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
-    .status-badge.offline { background: rgba(239, 68, 68, 0.15); color: var(--error); }
+    .status-badge.offline { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-badge.download { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
 
     /* Main Content */
     .main-content {
@@ -355,6 +357,11 @@
       overflow: hidden;
     }
 
+    .model-card.active {
+      border-color: rgba(66, 211, 146, 0.8);
+      box-shadow: 0 0 0 1px rgba(66, 211, 146, 0.16), 0 16px 42px rgba(0,0,0,0.34);
+    }
+
     .model-card:hover {
       transform: translateY(-4px);
       border-color: var(--accent);
@@ -362,7 +369,7 @@
     }
 
     .model-card.unavailable {
-      opacity: 0.4;
+      opacity: 0.58;
       filter: grayscale(1);
       cursor: not-allowed;
     }
@@ -389,7 +396,43 @@
       color: var(--text-muted);
     }
 
-    .model-type.real { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+    .model-type.real { background: rgba(79, 140, 255, 0.15); color: #8ab4ff; }
+    .model-type.offline { background: rgba(66, 211, 146, 0.15); color: var(--accent); }
+
+    .hero-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 620px;
+      margin-top: 40px;
+    }
+
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 720px;
+      margin-top: 18px;
+    }
+
+    .quick-prompts button {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      border-radius: 999px;
+      padding: 9px 13px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .quick-prompts button:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(66, 211, 146, 0.08);
+    }
 
     .progress-bar {
       height: 6px;
@@ -465,6 +508,14 @@
     @media (max-width: 800px) {
       .sidebar { position: absolute; transform: translateX(-100%); height: 100%; }
       .app-container.sidebar-open .sidebar { transform: translateX(0); }
+      #menu-btn { display: block !important; }
+      .top-bar { padding: 0 14px; }
+      .model-picker-btn { padding: 8px 12px; }
+      .welcome-center h1 { font-size: 32px; }
+      .welcome-center p { font-size: 15px; }
+      .hero-actions { grid-template-columns: 1fr; }
+      .hub-grid { grid-template-columns: 1fr; }
+      .library-hub { padding: 28px 18px; }
     }
   </style>
 </head>
@@ -500,7 +551,7 @@
       <div class="sidebar-footer">
         <div id="protocol-warning" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid var(--error); padding:10px; border-radius:var(--radius); margin-bottom:12px; font-size:11px; color:var(--error); line-height:1.4;">
           <strong>Security Limitation</strong><br>
-          Browser security blocks AI models on <code>file://</code>. Please use a local server (e.g. <code>npx serve</code>).
+          Real WebGPU models need a local server, but the bundled offline assistant works directly from this file.
         </div>
         <div class="engine-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -541,15 +592,21 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="m17 5 4 0"/><path d="M21 11v4"/><path d="m19 13 4 0"/></svg>
               </div>
               <h1>Real Local Intelligence</h1>
-              <p>Qwen2.5 models running directly on your hardware via WebGPU. Private. Unfiltered. Fast.</p>
+              <p>Works from this file with a bundled offline assistant. When Wi-Fi is available, Qwen2.5 WebGPU models can be downloaded and cached.</p>
               
-              <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; width:100%; max-width:600px; margin-top:40px;">
+              <div class="hero-actions">
                 <button class="model-picker-btn" style="justify-content:center; border-radius:12px; padding:20px; background:var(--accent); color:white; border:none;" onclick="location.hash='#library'">
-                  <strong>Setup Portable Models</strong>
+                  <strong>Choose Engine</strong>
                 </button>
                 <button class="model-picker-btn" style="justify-content:center; border-radius:12px; padding:20px;" onclick="setPrompt('How do I move these models to another device?')">
                   <strong>Portability Guide</strong>
                 </button>
+              </div>
+              <div class="quick-prompts">
+                <button onclick="setPrompt('Make me a study plan for tonight')">Study plan</button>
+                <button onclick="setPrompt('Summarize this: ')">Summarize</button>
+                <button onclick="setPrompt('Help me debug this error: ')">Debug</button>
+                <button onclick="setPrompt('What can you do without Wi-Fi?')">Offline check</button>
               </div>
             </div>
           </div>
@@ -641,18 +698,40 @@
 
   <div class="toast" id="toast"></div>
 
-  <script type="module">
-    // Import Transformers.js v3 via ESM
-    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
+  <script>
+    // Transformers.js is loaded only when a real model is selected. This keeps the
+    // app bootable from a ZIP or file:// URL with no Wi-Fi.
+    let transformersPipeline = null;
+    let transformersEnv = null;
 
-    // --- Transformers.js Configuration ---
-    env.allowLocalModels = true;
-    env.useBrowserCache = true;
-    env.remoteHost = 'https://huggingface.co/';
-    env.remotePathTemplate = '{model}/resolve/{revision}/';
+    async function ensureTransformers() {
+      if (transformersPipeline) return transformersPipeline;
+      if (!navigator.onLine) throw new Error("Wi-Fi is off and Transformers.js is not bundled.");
+
+      const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
+      transformersPipeline = mod.pipeline;
+      transformersEnv = mod.env;
+      transformersEnv.allowLocalModels = true;
+      transformersEnv.useBrowserCache = true;
+      transformersEnv.remoteHost = 'https://huggingface.co/';
+      transformersEnv.remotePathTemplate = '{model}/resolve/{revision}/';
+      return transformersPipeline;
+    }
 
     // --- State ---
     const MODELS = [
+      {
+        id: 'pocket-offline',
+        name: 'Pocket Offline',
+        type: 'offline',
+        size: 'Bundled',
+        desc: 'A self-contained local assistant that works instantly with no Wi-Fi, server, install, or model download.',
+        corpus: [
+          "I am running in the bundled offline engine. I can help draft, summarize, brainstorm, make checklists, explain code, and keep answers practical even without network access.",
+          "Offline mode is private and portable. For stronger open-ended generation, connect once, open Model Hub, and download a Qwen model into the browser cache.",
+          "To move this app, unzip the folder and open index.html. The built-in assistant works immediately. Cached WebGPU models are browser-specific and usually need to be downloaded again on a new device."
+        ]
+      },
       {
         id: 'qwen-0.5b',
         name: 'Qwen 2.5 0.5B',
@@ -734,13 +813,14 @@
     async function init() {
       if (location.protocol === 'file:') {
         $('#protocol-warning').style.display = 'block';
-        showToast("Local server required for models.");
+        showToast("Offline assistant ready from this file.");
       }
       
       checkWebGPU();
       await checkAvailability();
       renderHub();
       handleRouting();
+      await loadModel('pocket-offline');
       
       window.addEventListener('online', async () => {
         await checkAvailability();
@@ -749,6 +829,9 @@
       window.addEventListener('offline', async () => {
         await checkAvailability();
         renderHub();
+        if (!state.generator || MODELS.find(m => m.id === state.activeModelId)?.type === 'real') {
+          await loadModel('pocket-offline');
+        }
       });
       
       $('#file-input').addEventListener('change', async (e) => {
@@ -788,6 +871,14 @@
         state.temp = parseFloat(e.target.value);
         $('#temp-display').textContent = state.temp;
       });
+
+      $('#menu-btn').addEventListener('click', () => {
+        $('#app-shell').classList.toggle('sidebar-open');
+      });
+
+      $$('.nav-item').forEach(item => {
+        item.addEventListener('click', () => $('#app-shell').classList.remove('sidebar-open'));
+      });
     }
 
     async function checkWebGPU() {
@@ -820,6 +911,7 @@
 
       if (model.type === 'real') {
         try {
+          const pipeline = await ensureTransformers();
           state.generator = await pipeline('text-generation', model.repo, {
             device: model.device,
             dtype: model.dtype,
@@ -829,13 +921,29 @@
           els.hint.textContent = `${model.name} (Real) Ready`;
         } catch (e) {
           console.error(e);
-          showToast("WebGPU failed. Retrying in CPU mode...");
-          state.generator = await pipeline('text-generation', model.repo, {
-            device: 'cpu',
-            progress_callback: (p) => updateProgress(id, p)
-          });
-          els.badge.textContent = 'Real LLM (CPU)';
+          if (!navigator.onLine) {
+            showToast("Wi-Fi is off. Using bundled offline assistant.");
+            return loadModel('pocket-offline');
+          }
+          try {
+            showToast("WebGPU failed. Retrying in CPU mode...");
+            const pipeline = await ensureTransformers();
+            state.generator = await pipeline('text-generation', model.repo, {
+              device: 'cpu',
+              progress_callback: (p) => updateProgress(id, p)
+            });
+            els.badge.textContent = 'Real LLM (CPU)';
+          } catch (cpuError) {
+            console.error(cpuError);
+            showToast("Real model unavailable. Using offline assistant.");
+            return loadModel('pocket-offline');
+          }
         }
+      } else if (model.type === 'offline') {
+        state.generator = { type: 'offline', model };
+        els.badge.textContent = 'Offline Ready';
+        els.badge.className = 'status-badge offline';
+        els.hint.textContent = 'Bundled offline assistant ready';
       } else {
         // Simulation engine
         state.generator = { type: 'sim', model };
@@ -844,7 +952,7 @@
       }
 
       els.activeName.textContent = model.name;
-      els.modelInfo.textContent = `${model.name} · ${model.type === 'real' ? '4-bit WebGPU' : 'Local Markov'}`;
+      els.modelInfo.textContent = `${model.name} · ${model.type === 'real' ? '4-bit WebGPU' : model.type === 'offline' ? 'Bundled offline' : 'Local Markov'}`;
       renderHub();
       showToast(`${model.name} is ready`);
     }
@@ -882,15 +990,15 @@
       els.hint.textContent = "Thinking...";
 
       try {
-        if (state.generator.type === 'sim') {
-          // Simulation response from corpus
-          const aiMsg = addMessage('ai', '', 'Simulation Engine');
+        if (state.generator.type === 'offline' || state.generator.type === 'sim') {
+          const aiMsg = addMessage('ai', '', state.generator.type === 'offline' ? 'Pocket Offline' : 'Simulation Engine');
           setTimeout(() => {
-            const corpus = state.generator.model.corpus || ["No knowledge in this pack."];
-            const reply = corpus[Math.floor(Math.random() * corpus.length)];
-            aiMsg.update(reply);
+            const reply = state.generator.type === 'offline'
+              ? generateOfflineReply(prompt)
+              : pickFromCorpus(state.generator.model.corpus);
+            aiMsg.update(reply, state.generator.type === 'offline' ? 'Pocket Offline · no Wi-Fi used' : 'Simulation Engine');
             finishGen();
-          }, 500);
+          }, 220);
         } else {
           // Real LLM Generation with Streaming and TPS
           const messages = [
@@ -931,9 +1039,75 @@
       }
     }
 
+    function pickFromCorpus(corpus = []) {
+      if (!corpus.length) return "No knowledge in this pack.";
+      return corpus[Math.floor(Math.random() * corpus.length)];
+    }
+
+    function generateOfflineReply(prompt) {
+      const text = prompt.trim();
+      const lower = text.toLowerCase();
+      const sentences = text.split(/[.!?]\s+/).map(s => s.trim()).filter(Boolean);
+      const words = lower.match(/[a-z0-9']+/g) || [];
+      const keywords = [...new Set(words.filter(w => w.length > 3 && !COMMON_WORDS.has(w)))].slice(0, 8);
+
+      if (lower.includes('summarize') || lower.includes('summary')) {
+        return [
+          "Offline summary:",
+          sentences.slice(0, 3).map((s, i) => `${i + 1}. ${s}`).join('\n') || "I need text to summarize.",
+          keywords.length ? `\nMain terms: ${keywords.join(', ')}.` : ""
+        ].join('\n');
+      }
+
+      if (lower.includes('code') || lower.includes('bug') || lower.includes('error') || lower.includes('fix')) {
+        return [
+          "Here is a practical offline debugging pass:",
+          "1. Reproduce the issue with the smallest input that still fails.",
+          "2. Check the exact error line and the value of each variable feeding it.",
+          "3. Verify assumptions around async work, missing files, network calls, and browser permissions.",
+          "4. Make one change at a time, then retest.",
+          keywords.length ? `\nLikely focus areas from your prompt: ${keywords.join(', ')}.` : ""
+        ].join('\n');
+      }
+
+      if (lower.includes('plan') || lower.includes('todo') || lower.includes('steps') || lower.includes('how do i')) {
+        return [
+          "A compact plan:",
+          "1. Define the outcome in one sentence.",
+          "2. List the few inputs or files you already have.",
+          "3. Do the smallest useful version first.",
+          "4. Test it in the place it will actually be used.",
+          "5. Polish only after the core path works.",
+          keywords.length ? `\nFor this request, I would keep an eye on: ${keywords.join(', ')}.` : ""
+        ].join('\n');
+      }
+
+      if (lower.includes('offline') || lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('portable')) {
+        return "This copy of Dishonesty is already running offline. The bundled Pocket Offline engine needs no Wi-Fi, no server, and no install. Real Qwen models still need a one-time online download in Model Hub, then the browser may reuse its cache on the same device.";
+      }
+
+      if (lower.includes('hello') || lower.includes('hi ')) {
+        return "Hey. I am running from the bundled offline engine right now, so I can respond without touching the network. Ask me to draft, summarize, plan, or troubleshoot something.";
+      }
+
+      const opener = keywords.length
+        ? `I can work with this offline. The key pieces I see are ${keywords.join(', ')}.`
+        : "I can work with this offline.";
+
+      return `${opener}\n\nMy best local answer: keep the goal concrete, break it into a short checklist, and verify each step before adding complexity. For stronger free-form generation, download a real model once from Model Hub when Wi-Fi is available.`;
+    }
+
+    const COMMON_WORDS = new Set([
+      'about', 'after', 'again', 'also', 'because', 'before', 'could', 'from',
+      'have', 'into', 'just', 'like', 'make', 'more', 'need', 'only', 'please',
+      'should', 'that', 'their', 'them', 'then', 'there', 'these', 'thing',
+      'this', 'want', 'what', 'when', 'where', 'which', 'with', 'without',
+      'work', 'would', 'your'
+    ]);
+
     function finishGen() {
       state.isGenerating = false;
-      els.send.disabled = false;
+      els.send.disabled = !els.input.value.trim();
       els.hint.textContent = "Engine Ready";
     }
 
@@ -963,20 +1137,23 @@
 
     async function checkAvailability() {
       state.availableModelIds.clear();
+      for (const model of MODELS) {
+        if (model.type !== 'real') state.availableModelIds.add(model.id);
+      }
       try {
         const cacheNames = await caches.keys();
         const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
         if (transformersCache) {
           const cache = await caches.open(transformersCache);
           const keys = await cache.keys();
-          for (const model of MODELS) {
+          for (const model of MODELS.filter(m => m.type === 'real')) {
             const isCached = keys.some(k => k.url.includes(model.repo.split('/')[1]));
             if (isCached) state.availableModelIds.add(model.id);
           }
         }
       } catch (e) {}
       if (navigator.onLine) {
-        for (const model of MODELS) state.availableModelIds.add(model.id);
+        for (const model of MODELS.filter(m => m.type === 'real')) state.availableModelIds.add(model.id);
       }
     }
 
@@ -989,7 +1166,7 @@
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <span class="model-title">${m.name}</span>
-                <span class="model-type ${m.type}">${m.type === 'real' ? 'Transformers · WebGPU' : 'Simulation'}</span>
+                <span class="model-type ${m.type}">${m.type === 'real' ? 'Transformers · WebGPU' : m.type === 'offline' ? 'Bundled · Offline' : 'Simulation'}</span>
               </div>
               <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">${m.size}</span>
             </div>
@@ -997,7 +1174,7 @@
             <div class="progress-bar"><div class="progress-fill"></div></div>
             <button class="model-picker-btn" style="width:100%; justify-content:center; border-radius:10px;" 
               onclick="window.loadModel('${m.id}')" ${isActive || (!isAvailable && !navigator.onLine) ? 'disabled' : ''}>
-              ${isActive ? 'Active' : (isAvailable ? 'Activate Model' : 'Download Required')}
+              ${isActive ? 'Active' : (isAvailable ? 'Activate Model' : 'Wi-Fi Required')}
             </button>
           </div>
         `;
