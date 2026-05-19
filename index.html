@@ -1819,16 +1819,30 @@
         const dataEnd = dataStart + compressedSize;
         const name = decoder.decode(bytes.slice(nameStart, nameStart + fileNameLength));
 
-        if (method !== 0) {
-          throw new Error('This importer supports stored model ZIPs. Use the release packs or app export.');
-        }
         if (dataEnd > bytes.length) throw new Error('ZIP is truncated.');
-        entries.push({ name, bytes: bytes.slice(dataStart, dataEnd) });
+        const compressed = bytes.slice(dataStart, dataEnd);
+        let data;
+        if (method === 0) {
+          data = compressed;
+        } else if (method === 8) {
+          data = await inflateRaw(compressed);
+        } else {
+          throw new Error(`Unsupported ZIP compression method: ${method}`);
+        }
+        entries.push({ name, bytes: data });
         offset = dataEnd;
       }
 
       if (!entries.length) throw new Error('No ZIP entries found.');
       return entries;
+    }
+
+    async function inflateRaw(bytes) {
+      if (!('DecompressionStream' in window)) {
+        throw new Error('This browser cannot import compressed ZIP packs. Use Chrome 115+ or a stored ZIP pack.');
+      }
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
     }
 
     const AUTO_MODEL_PACKS = [
