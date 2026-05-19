@@ -1,0 +1,67 @@
+name: Build release packs
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to create or update
+        required: true
+        default: model-packs-latest
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-packs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade huggingface_hub
+
+      - name: Build app and model packs
+        run: python scripts/build_release_packs.py --download
+
+      - name: Choose release tag
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: Dishonesty Model Packs ${{ steps.release.outputs.tag }}
+          body: |
+            Automated release for Study Tools / Dishonesty.
+
+            Assets:
+            - `dishonesty-app.zip`: app only.
+            - `dishonesty-model-pack-small.zip`: smallest recommended model pack.
+            - `dishonesty-model-pack-good.zip`: stronger general/coder pack.
+            - `dishonesty-model-pack-all.zip`: every listed model.
+
+            Import a model pack from Model Hub with **Import Release Pack**.
+          files: |
+            dist/dishonesty-app.zip
+            dist/dishonesty-model-pack-small.zip
+            dist/dishonesty-model-pack-small.txt
+            dist/dishonesty-model-pack-good.zip
+            dist/dishonesty-model-pack-good.txt
+            dist/dishonesty-model-pack-all.zip
+            dist/dishonesty-model-pack-all.txt

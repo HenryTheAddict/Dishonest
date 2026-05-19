@@ -609,6 +609,59 @@
       gap: 16px;
     }
 
+    .spec-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 1200;
+    }
+
+    .spec-modal.visible { display: flex; }
+
+    .spec-card {
+      width: min(720px, 100%);
+      max-height: min(760px, 90vh);
+      overflow: auto;
+      background: #11151b;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .spec-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .spec-label {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .spec-value {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
     /* Toast */
     .toast {
       position: fixed;
@@ -676,6 +729,7 @@
       .hero-actions { grid-template-columns: 1fr; }
       .hub-grid { grid-template-columns: 1fr; }
       .settings-grid { grid-template-columns: 1fr; }
+      .spec-grid { grid-template-columns: 1fr; }
       .library-hub { padding: 28px 18px; }
     }
   </style>
@@ -714,7 +768,7 @@
           <strong>Security Limitation</strong><br>
           Real WebGPU models need internet for their first download. Cached models may work later on the same browser.
         </div>
-        <div class="engine-card">
+        <div class="engine-card" onclick="window.showSpecs()" title="Show system specs" style="cursor:pointer;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span>AI Status</span>
             <span id="engine-badge" class="status-badge offline">Initializing</span>
@@ -829,7 +883,11 @@
             </div>
             <h3 style="font-weight:800;">Real Model Cache</h3>
             <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Activate each model once while online. Chrome stores Transformers.js files in its cache when browser policy allows it.</p>
-            <button class="model-picker-btn" style="margin:0 auto;" onclick="window.exportAllModels()">Export Cached Model Files</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+              <button class="model-picker-btn" style="margin:0;" onclick="window.exportAllModels()">Export Cached Model Files</button>
+              <button class="model-picker-btn" style="margin:0;" onclick="document.querySelector('#model-import-input').click()">Import Release Pack</button>
+            </div>
+            <input type="file" id="model-import-input" accept=".zip" style="display:none;">
           </div>
         </div>
       </section>
@@ -939,6 +997,18 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <div class="spec-modal" id="spec-modal">
+    <div class="spec-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+        <div>
+          <h2 style="margin:0 0 4px; font-size:24px;">System Specs</h2>
+          <p style="margin:0; color:var(--text-muted); font-size:13px;">Browser, hardware, WebGPU, storage, and model cache status.</p>
+        </div>
+        <button class="tool-chip" onclick="window.hideSpecs()">Close</button>
+      </div>
+      <div class="spec-grid" id="spec-grid"></div>
+    </div>
+  </div>
 
   <script>
     // Transformers.js is loaded only when a real model is selected. This keeps the
@@ -1027,7 +1097,10 @@
       activeName: $('#active-model-name'),
       hint: $('#engine-hint'),
       previewPanel: $('#preview-panel'),
-      preview: $('#tool-preview')
+      preview: $('#tool-preview'),
+      importInput: $('#model-import-input'),
+      specModal: $('#spec-modal'),
+      specGrid: $('#spec-grid')
     };
 
     // --- Core Logic ---
@@ -1065,6 +1138,7 @@
 
       els.form.addEventListener('submit', handleSend);
       els.stop.addEventListener('click', stopGeneration);
+      els.importInput.addEventListener('change', importModelPack);
       
       bindSetting('setting-temp', 'temp', 'temp-display', parseFloat);
       bindSetting('setting-max-tokens', 'maxTokens', 'tokens-display', parseInt);
@@ -1486,6 +1560,46 @@
         .replace(/'/g, '&#39;');
     }
 
+    async function collectSpecs() {
+      const storage = navigator.storage?.estimate ? await navigator.storage.estimate() : {};
+      const cacheNames = await caches.keys().catch(() => []);
+      const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
+      let cachedFiles = 0;
+      if (transformersCache) {
+        const cache = await caches.open(transformersCache);
+        cachedFiles = (await cache.keys()).length;
+      }
+
+      let gpuInfo = 'Unavailable';
+      if ('gpu' in navigator) {
+        try {
+          const adapter = await navigator.gpu.requestAdapter();
+          if (adapter) {
+            const info = adapter.info || {};
+            gpuInfo = [info.vendor, info.architecture, info.device, info.description].filter(Boolean).join(' · ') || 'WebGPU adapter available';
+          }
+        } catch (e) {
+          gpuInfo = 'WebGPU present, adapter blocked';
+        }
+      }
+
+      const fmt = bytes => bytes ? `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB` : 'Unknown';
+      return [
+        { label: 'Online', value: navigator.onLine ? 'Yes' : 'No' },
+        { label: 'CPU Threads', value: navigator.hardwareConcurrency || 'Unknown' },
+        { label: 'Device Memory', value: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Unknown' },
+        { label: 'Platform', value: navigator.platform || 'Unknown' },
+        { label: 'Language', value: navigator.language || 'Unknown' },
+        { label: 'WebGPU', value: gpuInfo },
+        { label: 'Storage Used', value: fmt(storage.usage) },
+        { label: 'Storage Quota', value: fmt(storage.quota) },
+        { label: 'Cache Names', value: cacheNames.join(', ') || 'None' },
+        { label: 'Cached Model Files', value: String(cachedFiles) },
+        { label: 'Active Model', value: MODELS.find(m => m.id === state.activeModelId)?.name || 'None' },
+        { label: 'User Agent', value: navigator.userAgent }
+      ];
+    }
+
     async function checkAvailability() {
       state.availableModelIds.clear();
       state.cachedModelIds.clear();
@@ -1510,10 +1624,12 @@
     }
 
     function renderHub() {
+      const recommendedId = getRecommendedModelId();
       els.hub.innerHTML = MODELS.map(m => {
         const isAvailable = state.availableModelIds.has(m.id);
         const isCached = state.cachedModelIds.has(m.id);
         const isActive = state.activeModelId === m.id;
+        const isRecommended = recommendedId === m.id;
         return `
           <div class="model-card ${isActive ? 'active' : ''} ${!isAvailable ? 'unavailable' : ''}" data-id="${m.id}">
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -1525,7 +1641,7 @@
             </div>
             <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">${m.desc}</p>
             <span style="font-size:11px; color:${isCached ? 'var(--success)' : navigator.onLine ? 'var(--warning)' : 'var(--text-muted)'}; font-weight:800; text-transform:uppercase;">
-              ${isCached ? 'Cached on this browser' : navigator.onLine ? 'Download available' : 'Needs Wi-Fi once'}
+              ${isRecommended ? 'Recommended · ' : ''}${isCached ? 'Cached on this browser' : navigator.onLine ? 'Download available' : 'Needs Wi-Fi once'}
             </span>
             <div class="progress-bar"><div class="progress-fill"></div></div>
             <button class="model-picker-btn" style="width:100%; justify-content:center; border-radius:10px;" 
@@ -1535,6 +1651,13 @@
           </div>
         `;
       }).join('');
+    }
+
+    function getRecommendedModelId() {
+      const memory = navigator.deviceMemory || 4;
+      const cores = navigator.hardwareConcurrency || 4;
+      if (memory >= 8 && cores >= 6) return 'gemma-3-1b';
+      return 'qwen-0.5b';
     }
 
     function handleRouting() {
@@ -1554,6 +1677,21 @@
     window.clearPreview = () => {
       els.preview.srcdoc = '';
       els.previewPanel.classList.remove('visible');
+    };
+
+    window.showSpecs = async () => {
+      const specs = await collectSpecs();
+      els.specGrid.innerHTML = specs.map(item => `
+        <div class="spec-item">
+          <div class="spec-label">${escapeHtml(item.label)}</div>
+          <div class="spec-value">${escapeHtml(item.value)}</div>
+        </div>
+      `).join('');
+      els.specModal.classList.add('visible');
+    };
+
+    window.hideSpecs = () => {
+      els.specModal.classList.remove('visible');
     };
 
     window.loadModel = loadModel;
@@ -1599,6 +1737,75 @@
         showToast("Export failed: " + err.message);
       }
     };
+
+    async function importModelPack(event) {
+      const file = event.target.files?.[0];
+      event.target.value = '';
+      if (!file) return;
+
+      showToast(`Importing ${file.name}...`);
+      try {
+        const entries = await readStoredZip(file);
+        const cache = await caches.open('transformers-cache');
+        let imported = 0;
+
+        for (const entry of entries) {
+          if (entry.name.endsWith('/') || entry.name.startsWith('__MACOSX/')) continue;
+          const normalized = entry.name.replace(/^models\//, '').replace(/^\/+/, '');
+          if (!normalized.includes('/resolve/')) continue;
+          const url = `https://huggingface.co/${normalized}`;
+          await cache.put(new Request(url), new Response(entry.bytes, {
+            headers: { 'Content-Type': guessContentType(normalized) }
+          }));
+          imported++;
+        }
+
+        await checkAvailability();
+        renderHub();
+        showToast(imported ? `Imported ${imported} model files.` : 'No Hugging Face model files found in ZIP.');
+      } catch (err) {
+        console.error(err);
+        showToast(`Import failed: ${err.message}`);
+      }
+    }
+
+    async function readStoredZip(file) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      const decoder = new TextDecoder();
+      const entries = [];
+      let offset = 0;
+
+      while (offset + 30 <= bytes.length && view.getUint32(offset, true) === 0x04034b50) {
+        const method = view.getUint16(offset + 8, true);
+        const compressedSize = view.getUint32(offset + 18, true);
+        const fileNameLength = view.getUint16(offset + 26, true);
+        const extraLength = view.getUint16(offset + 28, true);
+        const nameStart = offset + 30;
+        const dataStart = nameStart + fileNameLength + extraLength;
+        const dataEnd = dataStart + compressedSize;
+        const name = decoder.decode(bytes.slice(nameStart, nameStart + fileNameLength));
+
+        if (method !== 0) {
+          throw new Error('This importer supports stored model ZIPs. Use the release packs or app export.');
+        }
+        if (dataEnd > bytes.length) throw new Error('ZIP is truncated.');
+        entries.push({ name, bytes: bytes.slice(dataStart, dataEnd) });
+        offset = dataEnd;
+      }
+
+      if (!entries.length) throw new Error('No ZIP entries found.');
+      return entries;
+    }
+
+    function guessContentType(path) {
+      if (path.endsWith('.json')) return 'application/json';
+      if (path.endsWith('.txt')) return 'text/plain';
+      if (path.endsWith('.onnx')) return 'application/octet-stream';
+      if (path.endsWith('.onnx_data')) return 'application/octet-stream';
+      if (path.endsWith('.safetensors')) return 'application/octet-stream';
+      return 'application/octet-stream';
+    }
 
     function createStoredZip(files) {
       const encoder = new TextEncoder();

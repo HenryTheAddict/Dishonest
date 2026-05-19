@@ -23,3 +23,14 @@ The Settings page includes temperature, max tokens, top-p, repeat penalty, sampl
 ## Local Tools
 
 Use `/math 2 + 2`, `/ascii hello`, or `/preview <h1>Hello</h1>` in chat. Model responses render Markdown, including code blocks and lists, and HTML previews open in a sandboxed iframe.
+
+## Release Packs
+
+GitHub Actions builds release assets:
+
+- `dishonesty-app.zip`: app only
+- `dishonesty-model-pack-small.zip`: Qwen 2.5 0.5B
+- `dishonesty-model-pack-good.zip`: Gemma 3 1B IT + Qwen Coder 0.5B
+- `dishonesty-model-pack-all.zip`: every listed model
+
+Model packs are stored ZIPs that can be imported from Model Hub with **Import Release Pack**. The importer writes files into the browser `transformers-cache`, then the app detects cached models automatically.
