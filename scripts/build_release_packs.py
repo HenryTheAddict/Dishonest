@@ -53,8 +53,8 @@ ALLOW_PATTERNS = [
     "*.tiktoken",
     "*.jinja",
     "tokenizer*",
-    "onnx/*.onnx",
-    "onnx/*.onnx_data",
+    "onnx/model_q4.onnx",
+    "onnx/model_q4.onnx_data",
 ]
 
 # Keep assets well below GitHub's 2 GiB release-asset ceiling. Individual
