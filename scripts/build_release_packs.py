@@ -57,7 +57,10 @@ ALLOW_PATTERNS = [
     "onnx/*.onnx_data",
 ]
 
-MAX_RELEASE_ASSET_BYTES = 1_800_000_000
+# Keep assets well below GitHub's 2 GiB release-asset ceiling. Individual
+# model weight files may be larger than this target, but still must be below
+# GitHub's hard limit to upload as a single stored ZIP entry.
+MAX_RELEASE_ASSET_BYTES = 700_000_000
 
 
 def write_app_zip(root: Path, dist: Path) -> None:
@@ -105,6 +108,7 @@ def write_one_pack(dist: Path, pack_name: str, models: list[dict], files: list[t
         zf.writestr("manifest.json", json.dumps(manifest, indent=2), compress_type=zipfile.ZIP_STORED)
         for path, archive_name, _size in files:
             zf.write(path, archive_name, compress_type=zipfile.ZIP_STORED)
+    print(f"wrote {pack_path.name}: {pack_path.stat().st_size:,} bytes")
     return pack_path
 
 
@@ -127,6 +131,8 @@ def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: 
             parts.append(current)
             current = []
             current_size = 0
+        if size > 2_000_000_000:
+            raise RuntimeError(f"{item[1]} is too large for a GitHub release asset by itself: {size:,} bytes")
         current.append(item)
         current_size += size
     if current:
