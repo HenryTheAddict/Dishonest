@@ -15,3 +15,11 @@ All listed models are real ONNX language models for Transformers.js/WebGPU:
 - Gemma 3 1B IT
 
 Each model needs internet the first time Chrome downloads it. After that, Chrome may reuse the browser cache on the same device.
+
+## Runtime Controls
+
+The Settings page includes temperature, max tokens, top-p, repeat penalty, sampling, device, quantization, and system prompt controls. Settings save in the browser automatically.
+
+## Local Tools
+
+Use `/math 2 + 2`, `/ascii hello`, or `/preview <h1>Hello</h1>` in chat. Model responses render Markdown, including code blocks and lists, and HTML previews open in a sandboxed iframe.

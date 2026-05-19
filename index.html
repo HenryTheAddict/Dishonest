@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090a0c">
-  <title>Dishonesty · Real Browser AI</title>
+  <title>Study Tools</title>
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%231c6f4a"/><path d="M16 18h32v6H16zM16 29h32v5H16zM16 39h21v5H16z" fill="white"/></svg>'>
   <style>
     :root {
       --bg: #090a0c;
@@ -253,13 +254,67 @@
 
     .msg-user .msg-avatar { background: #333; color: white; }
     .msg-ai .msg-avatar { background: linear-gradient(135deg, var(--accent), #a855f7); color: white; }
+    .msg-tool .msg-avatar { background: rgba(79, 140, 255, 0.18); color: #8ab4ff; border: 1px solid rgba(79, 140, 255, 0.35); }
 
     .msg-content {
       flex: 1;
       line-height: 1.6;
       font-size: 16px;
-      white-space: pre-wrap;
       padding-top: 6px;
+      min-width: 0;
+    }
+
+    .text-container.plain { white-space: pre-wrap; }
+
+    .markdown p { margin: 0 0 12px; }
+    .markdown p:last-child { margin-bottom: 0; }
+    .markdown ul, .markdown ol { margin: 8px 0 12px 22px; padding: 0; }
+    .markdown li { margin: 4px 0; }
+    .markdown code {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+    }
+    .markdown pre {
+      margin: 12px 0;
+      padding: 14px;
+      background: #0b0e13;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: auto;
+      white-space: pre;
+    }
+    .markdown pre code {
+      border: 0;
+      padding: 0;
+      background: transparent;
+    }
+    .markdown a { color: var(--accent-hover); }
+
+    .tool-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tool-chip {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .tool-chip:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      background: rgba(66, 211, 146, 0.08);
     }
 
     .msg-meta {
@@ -327,6 +382,51 @@
       background: #222;
       color: #555;
       cursor: not-allowed;
+    }
+
+    .stop-btn {
+      width: 40px;
+      height: 40px;
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      border-radius: 50%;
+      display: none;
+      place-items: center;
+      transition: 0.2s;
+    }
+
+    .stop-btn.visible { display: grid; }
+
+    .preview-panel {
+      display: none;
+      border: 1px solid var(--border);
+      background: rgba(15,17,21,0.82);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .preview-panel.visible { display: block; }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .preview-frame {
+      width: 100%;
+      height: 320px;
+      border: 0;
+      background: white;
+      display: block;
     }
 
     /* Library Hub */
@@ -449,6 +549,66 @@
       transition: width 0.3s;
     }
 
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .setting-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .setting-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .setting-value {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .setting-help {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .setting-panel input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    .setting-panel select,
+    .setting-panel textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #101319;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .setting-panel textarea {
+      min-height: 96px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
     /* Toast */
     .toast {
       position: fixed;
@@ -515,6 +675,7 @@
       .welcome-center p { font-size: 15px; }
       .hero-actions { grid-template-columns: 1fr; }
       .hub-grid { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
       .library-hub { padding: 28px 18px; }
     }
   </style>
@@ -609,12 +770,28 @@
                 <button onclick="setPrompt('Which real model should I use?')">Pick model</button>
               </div>
             </div>
+            <div class="preview-panel" id="preview-panel">
+              <div class="preview-header">
+                <span>Sandbox Preview</span>
+                <button class="tool-chip" onclick="window.clearPreview()">Close</button>
+              </div>
+              <iframe class="preview-frame" id="tool-preview" sandbox="allow-forms allow-popups"></iframe>
+            </div>
           </div>
 
           <div class="composer-wrapper">
             <form class="composer-box" id="composer-form">
+              <div class="tool-strip">
+                <button type="button" class="tool-chip" onclick="setPrompt('/math ')">Math</button>
+                <button type="button" class="tool-chip" onclick="setPrompt('/ascii Study Tools')">ASCII</button>
+                <button type="button" class="tool-chip" onclick="setPrompt('/preview <h1>Hello</h1><p>Edit this HTML.</p>')">Preview</button>
+                <button type="button" class="tool-chip" onclick="setPrompt('Use tools if helpful. ')">Tool context</button>
+              </div>
               <div class="textarea-container">
                 <textarea class="chat-input" id="chat-input" placeholder="Message Dishonesty..." rows="1"></textarea>
+                <button class="stop-btn" id="stop-btn" type="button" title="Stop generation">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                </button>
                 <button class="send-btn" id="send-btn" type="submit" disabled>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
@@ -662,22 +839,88 @@
         <div class="library-hub" style="max-width:800px;">
           <h1 style="font-size:32px; font-weight:900;">Runtime Configuration</h1>
           
-          <div style="display:flex; flex-direction:column; gap:40px; margin-top:40px;">
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <div style="display:flex; justify-content:space-between; font-weight:700;">
+          <div style="display:flex; flex-direction:column; gap:24px; margin-top:32px;">
+            <div class="settings-grid">
+            <div class="setting-panel">
+              <div class="setting-head">
                 <span>Temperature (Creativity)</span>
-                <span id="temp-display" style="color:var(--accent);">0.7</span>
+                <span class="setting-value" id="temp-display">0.7</span>
               </div>
-              <input type="range" min="0" max="1" step="0.05" value="0.7" id="setting-temp" style="width:100%; accent-color:var(--accent);">
-              <span style="font-size:12px; color:var(--text-muted);">Lower for facts, higher for creativity.</span>
+              <input type="range" min="0" max="1.5" step="0.05" value="0.7" id="setting-temp">
+              <span class="setting-help">Lower for factual answers, higher for looser brainstorming.</span>
             </div>
 
-            <div style="display:flex; flex-direction:column; gap:12px;">
-              <div style="display:flex; justify-content:space-between; font-weight:700;">
-                <span>Quantization Depth</span>
-                <span style="color:var(--success);">4-bit (Extreme)</span>
+            <div class="setting-panel">
+              <div class="setting-head">
+                <span>Max New Tokens</span>
+                <span class="setting-value" id="tokens-display">512</span>
               </div>
-              <p style="font-size:12px; color:var(--text-muted);">Using 4-bit (q4f16) ensures models fit in VRAM and run fast on Chromebooks.</p>
+              <input type="range" min="64" max="1024" step="32" value="512" id="setting-max-tokens">
+              <span class="setting-help">Caps answer length. Smaller values feel faster on Chromebooks.</span>
+            </div>
+
+            <div class="setting-panel">
+              <div class="setting-head">
+                <span>Top P</span>
+                <span class="setting-value" id="top-p-display">0.9</span>
+              </div>
+              <input type="range" min="0.1" max="1" step="0.05" value="0.9" id="setting-top-p">
+              <span class="setting-help">Narrows or widens the token pool the model samples from.</span>
+            </div>
+
+            <div class="setting-panel">
+              <div class="setting-head">
+                <span>Repeat Penalty</span>
+                <span class="setting-value" id="repeat-display">1.1</span>
+              </div>
+              <input type="range" min="1" max="1.5" step="0.05" value="1.1" id="setting-repeat">
+              <span class="setting-help">Higher values reduce loops and repeated phrases.</span>
+            </div>
+
+            <div class="setting-panel">
+              <div class="setting-head">
+                <span>Runtime Device</span>
+                <span class="setting-value">Live</span>
+              </div>
+              <select id="setting-device">
+                <option value="auto">Auto: WebGPU then CPU</option>
+                <option value="webgpu">WebGPU only</option>
+                <option value="cpu">CPU only</option>
+              </select>
+              <span class="setting-help">Auto is best for most Chromebooks. CPU works more often but can be slow.</span>
+            </div>
+
+            <div class="setting-panel">
+              <div class="setting-head">
+                <span>Quantization</span>
+                <span class="setting-value">Load</span>
+              </div>
+              <select id="setting-dtype">
+                <option value="q4">q4: smallest</option>
+                <option value="fp16">fp16: sharper, larger</option>
+                <option value="auto">auto</option>
+              </select>
+              <span class="setting-help">Changing this requires reloading the model.</span>
+            </div>
+            </div>
+
+            <div class="setting-panel">
+              <div class="toggle-row">
+                <div>
+                  <div style="font-weight:800;">Sampling</div>
+                  <div class="setting-help">Turn off for more deterministic answers.</div>
+                </div>
+                <input type="checkbox" id="setting-sample" checked style="accent-color:var(--accent); width:18px; height:18px;">
+              </div>
+            </div>
+
+            <div class="setting-panel">
+              <div class="setting-head">
+                <span>System Prompt</span>
+                <span class="setting-value">Saved</span>
+              </div>
+              <textarea id="setting-system">You are a helpful study and coding assistant. Be concise, practical, and clear. Use Markdown for lists, code blocks, and important formatting. When local tool results are provided, use them instead of guessing.</textarea>
+              <span class="setting-help">This instruction is sent before every message.</span>
             </div>
 
             <button class="model-picker-btn" style="justify-content:center; color:var(--error); border-color:var(--error); margin-top:40px;" onclick="clearCache()">
@@ -705,7 +948,6 @@
 
     async function ensureTransformers() {
       if (transformersPipeline) return transformersPipeline;
-      if (!navigator.onLine) throw new Error("Wi-Fi is off and Transformers.js is not bundled.");
 
       const mod = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0');
       transformersPipeline = mod.pipeline;
@@ -756,7 +998,16 @@
       generator: null,
       isGenerating: false,
       temp: 0.7,
+      maxTokens: 512,
+      topP: 0.9,
+      repeatPenalty: 1.1,
+      doSample: true,
+      device: 'auto',
+      dtype: 'q4',
+      systemPrompt: 'You are a helpful study and coding assistant. Be concise, practical, and clear. Use Markdown for lists, code blocks, and important formatting. When local tool results are provided, use them instead of guessing.',
+      abortController: null,
       history: [],
+      cachedModelIds: new Set(),
       availableModelIds: new Set()
     };
 
@@ -769,24 +1020,32 @@
       welcome: $('#welcome-screen'),
       input: $('#chat-input'),
       send: $('#send-btn'),
+      stop: $('#stop-btn'),
       form: $('#composer-form'),
       hub: $('#hub-grid'),
       modelInfo: $('#current-model-info'),
       activeName: $('#active-model-name'),
-      hint: $('#engine-hint')
+      hint: $('#engine-hint'),
+      previewPanel: $('#preview-panel'),
+      preview: $('#tool-preview')
     };
 
     // --- Core Logic ---
     async function init() {
       if (location.protocol === 'file:') {
         $('#protocol-warning').style.display = 'block';
-        showToast("Offline assistant ready from this file.");
+        showToast("Open Model Hub to load a real model.");
       }
       
+      loadSettings();
       checkWebGPU();
       await checkAvailability();
       renderHub();
       handleRouting();
+      const savedModelId = localStorage.getItem('dishonesty-active-model');
+      if (savedModelId && state.cachedModelIds.has(savedModelId)) {
+        loadModel(savedModelId);
+      }
       
       window.addEventListener('online', async () => {
         await checkAvailability();
@@ -805,10 +1064,18 @@
       });
 
       els.form.addEventListener('submit', handleSend);
+      els.stop.addEventListener('click', stopGeneration);
       
-      $('#setting-temp').addEventListener('input', (e) => {
-        state.temp = parseFloat(e.target.value);
-        $('#temp-display').textContent = state.temp;
+      bindSetting('setting-temp', 'temp', 'temp-display', parseFloat);
+      bindSetting('setting-max-tokens', 'maxTokens', 'tokens-display', parseInt);
+      bindSetting('setting-top-p', 'topP', 'top-p-display', parseFloat);
+      bindSetting('setting-repeat', 'repeatPenalty', 'repeat-display', parseFloat);
+      bindSetting('setting-device', 'device', null, String);
+      bindSetting('setting-dtype', 'dtype', null, String);
+      bindSetting('setting-system', 'systemPrompt', null, String);
+      $('#setting-sample').addEventListener('change', (e) => {
+        state.doSample = e.target.checked;
+        saveSettings();
       });
 
       $('#menu-btn').addEventListener('click', () => {
@@ -818,6 +1085,43 @@
       $$('.nav-item').forEach(item => {
         item.addEventListener('click', () => $('#app-shell').classList.remove('sidebar-open'));
       });
+    }
+
+    function bindSetting(id, key, displayId, parser) {
+      const el = $('#' + id);
+      if (!el) return;
+      el.addEventListener('input', (e) => {
+        state[key] = parser(e.target.value);
+        if (displayId) $('#' + displayId).textContent = state[key];
+        saveSettings();
+      });
+    }
+
+    function loadSettings() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('dishonesty-settings') || '{}');
+        Object.assign(state, Object.fromEntries(Object.entries(saved).filter(([key]) => key in state)));
+      } catch (e) {}
+
+      $('#setting-temp').value = state.temp;
+      $('#temp-display').textContent = state.temp;
+      $('#setting-max-tokens').value = state.maxTokens;
+      $('#tokens-display').textContent = state.maxTokens;
+      $('#setting-top-p').value = state.topP;
+      $('#top-p-display').textContent = state.topP;
+      $('#setting-repeat').value = state.repeatPenalty;
+      $('#repeat-display').textContent = state.repeatPenalty;
+      $('#setting-device').value = state.device;
+      $('#setting-dtype').value = state.dtype;
+      $('#setting-sample').checked = state.doSample;
+      $('#setting-system').value = state.systemPrompt;
+    }
+
+    function saveSettings() {
+      const { temp, maxTokens, topP, repeatPenalty, doSample, device, dtype, systemPrompt } = state;
+      localStorage.setItem('dishonesty-settings', JSON.stringify({
+        temp, maxTokens, topP, repeatPenalty, doSample, device, dtype, systemPrompt
+      }));
     }
 
     async function checkWebGPU() {
@@ -851,9 +1155,11 @@
       if (model.type === 'real') {
         try {
           const pipeline = await ensureTransformers();
+          const loadDevice = state.device === 'auto' ? model.device : state.device;
+          const loadDtype = state.dtype === 'auto' ? model.dtype : state.dtype;
           state.generator = await pipeline('text-generation', model.repo, {
-            device: model.device,
-            dtype: model.dtype,
+            device: loadDevice,
+            dtype: loadDtype,
             progress_callback: (p) => updateProgress(id, p)
           });
           els.badge.textContent = 'Real LLM Active';
@@ -871,10 +1177,12 @@
             return;
           }
           try {
+            if (state.device === 'webgpu') throw e;
             showToast("WebGPU failed. Retrying in CPU mode...");
             const pipeline = await ensureTransformers();
             state.generator = await pipeline('text-generation', model.repo, {
               device: 'cpu',
+              dtype: state.dtype === 'auto' ? model.dtype : state.dtype,
               progress_callback: (p) => updateProgress(id, p)
             });
             els.badge.textContent = 'Real LLM (CPU)';
@@ -893,7 +1201,8 @@
       }
 
       els.activeName.textContent = model.name;
-      els.modelInfo.textContent = `${model.name} · 4-bit WebGPU`;
+      localStorage.setItem('dishonesty-active-model', id);
+      els.modelInfo.textContent = `${model.name} · ${state.dtype} · ${state.device}`;
       renderHub();
       showToast(`${model.name} is ready`);
     }
@@ -916,23 +1225,34 @@
       const prompt = els.input.value.trim();
       if (!prompt || state.isGenerating) return;
 
+      addMessage('user', prompt);
+      els.input.value = '';
+      autoResize();
+
+      const toolResults = runLocalTools(prompt);
+      if (toolResults.length) {
+        addMessage('tool', toolResults.join('\n\n'), 'Local tools');
+      }
+
       if (!state.generator) {
+        if (toolResults.length) {
+          finishGen();
+          return;
+        }
         showToast("Please select a model first!");
         location.hash = '#library';
         return;
       }
-
-      addMessage('user', prompt);
-      els.input.value = '';
-      autoResize();
       
       state.isGenerating = true;
+      state.abortController = new AbortController();
       els.send.disabled = true;
+      els.stop.classList.add('visible');
       els.hint.textContent = "Thinking...";
 
       try {
         const messages = [
-          { role: "system", content: "You are Dishonesty, a helpful but blunt local AI. You provide concise, direct answers." },
+          { role: "system", content: buildSystemPrompt(toolResults) },
           { role: "user", content: prompt }
         ];
 
@@ -942,8 +1262,12 @@
         const startTime = performance.now();
 
         const output = await state.generator(messages, {
-          max_new_tokens: 512,
+          max_new_tokens: state.maxTokens,
           temperature: state.temp,
+          top_p: state.topP,
+          repetition_penalty: state.repeatPenalty,
+          do_sample: state.doSample,
+          signal: state.abortController.signal,
           on_chunk: (chunk) => {
             const content = chunk.choices[0]?.delta?.content || "";
             if (content) {
@@ -967,15 +1291,84 @@
         finishGen();
       } catch (e) {
         console.error(e);
-        addMessage('ai', "Error: Model failed to generate. Check console for details.");
+        if (e.name === 'AbortError') {
+          addMessage('ai', "Stopped.");
+        } else {
+          addMessage('ai', "Error: Model failed to generate. Check console for details.");
+        }
         finishGen();
       }
     }
 
+    function buildSystemPrompt(toolResults) {
+      if (!toolResults.length) return state.systemPrompt;
+      return `${state.systemPrompt}\n\nLocal tool results are available below. Use them directly when answering, and mention when a preview was rendered.\n\n${toolResults.join('\n\n')}`;
+    }
+
+    function runLocalTools(prompt) {
+      const results = [];
+      const trimmed = prompt.trim();
+      const htmlFence = prompt.match(/```html\s*([\s\S]*?)```/i);
+
+      if (trimmed.toLowerCase().startsWith('/math ')) {
+        const expr = trimmed.slice(6).trim();
+        results.push(`Math tool\nExpression: ${expr}\nResult: ${runMath(expr)}`);
+      }
+
+      if (trimmed.toLowerCase().startsWith('/ascii ')) {
+        const text = trimmed.slice(7).trim() || 'Study Tools';
+        results.push(`ASCII generator\n\n\`\`\`\n${makeAscii(text)}\n\`\`\``);
+      }
+
+      if (trimmed.toLowerCase().startsWith('/preview ')) {
+        const html = trimmed.slice(9).trim();
+        renderPreview(html);
+        results.push('HTML preview\nRendered the supplied HTML in the sandbox preview iframe.');
+      } else if (htmlFence) {
+        renderPreview(htmlFence[1].trim());
+        results.push('HTML preview\nRendered the fenced HTML block in the sandbox preview iframe.');
+      }
+
+      return results;
+    }
+
+    function runMath(expr) {
+      if (!/^[0-9+\-*/%().,\s_a-zA-Z]+$/.test(expr)) return 'Invalid expression';
+      const names = ['abs','acos','asin','atan','atan2','ceil','cos','E','exp','floor','LN2','LN10','log','max','min','PI','pow','random','round','sin','sqrt','tan','trunc'];
+      const values = names.map(name => Math[name]);
+      try {
+        const fn = Function(...names, `"use strict"; return (${expr});`);
+        const result = fn(...values);
+        return Number.isFinite(result) ? String(result) : 'Expression did not return a finite number';
+      } catch (e) {
+        return 'Could not evaluate expression';
+      }
+    }
+
+    function makeAscii(text) {
+      const clean = text.replace(/[^\x20-\x7e]/g, '').slice(0, 48) || 'Study Tools';
+      const border = '='.repeat(clean.length + 8);
+      return `${border}\n||  ${clean.toUpperCase()}  ||\n${border}`;
+    }
+
+    function renderPreview(html) {
+      const safeHtml = html || '<p>No HTML supplied.</p>';
+      els.preview.srcdoc = safeHtml;
+      els.previewPanel.classList.add('visible');
+      els.previewPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     function finishGen() {
       state.isGenerating = false;
+      state.abortController = null;
       els.send.disabled = !els.input.value.trim();
+      els.stop.classList.remove('visible');
       els.hint.textContent = "Engine Ready";
+    }
+
+    function stopGeneration() {
+      if (state.abortController) state.abortController.abort();
+      els.hint.textContent = "Stopping...";
     }
 
     // --- UI Helpers ---
@@ -983,27 +1376,119 @@
       els.welcome.style.display = 'none';
       const div = document.createElement('div');
       div.className = `message msg-${role}`;
-      div.innerHTML = `
-        <div class="msg-avatar">${role === 'ai' ? 'D' : 'U'}</div>
-        <div class="msg-content">
-          <span class="text-container">${text}</span>
-          <span class="msg-meta">${meta || ''}</span>
-        </div>
-      `;
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.textContent = role === 'ai' ? 'D' : role === 'tool' ? 'T' : 'U';
+      const content = document.createElement('div');
+      content.className = 'msg-content';
+      const body = document.createElement('div');
+      body.className = `text-container ${role === 'user' ? 'plain' : 'markdown'}`;
+      if (role === 'user') body.textContent = text;
+      else body.innerHTML = renderMarkdown(text);
+      const metaEl = document.createElement('span');
+      metaEl.className = 'msg-meta';
+      metaEl.textContent = meta || '';
+      content.append(body, metaEl);
+      div.append(avatar, content);
       els.list.appendChild(div);
       div.scrollIntoView({ behavior: 'smooth' });
 
       return {
         update: (newText, newMeta) => {
-          div.querySelector('.text-container').textContent = newText;
+          if (role === 'user') div.querySelector('.text-container').textContent = newText;
+          else div.querySelector('.text-container').innerHTML = renderMarkdown(newText);
           if (newMeta) div.querySelector('.msg-meta').textContent = newMeta;
           div.scrollIntoView({ behavior: 'smooth' });
         }
       };
     }
 
+    function renderMarkdown(markdown) {
+      const lines = String(markdown || '').split('\n');
+      const html = [];
+      let inCode = false;
+      let code = [];
+      let listType = null;
+
+      const closeList = () => {
+        if (listType) {
+          html.push(`</${listType}>`);
+          listType = null;
+        }
+      };
+
+      for (const line of lines) {
+        const fence = line.match(/^```/);
+        if (fence) {
+          if (inCode) {
+            html.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+            code = [];
+            inCode = false;
+          } else {
+            closeList();
+            inCode = true;
+          }
+          continue;
+        }
+
+        if (inCode) {
+          code.push(line);
+          continue;
+        }
+
+        if (!line.trim()) {
+          closeList();
+          continue;
+        }
+
+        const ordered = line.match(/^\s*\d+\.\s+(.+)/);
+        const bullet = line.match(/^\s*[-*]\s+(.+)/);
+        if (ordered || bullet) {
+          const tag = ordered ? 'ol' : 'ul';
+          if (listType !== tag) {
+            closeList();
+            html.push(`<${tag}>`);
+            listType = tag;
+          }
+          html.push(`<li>${inlineMarkdown(ordered ? ordered[1] : bullet[1])}</li>`);
+          continue;
+        }
+
+        closeList();
+        const heading = line.match(/^(#{1,3})\s+(.+)/);
+        if (heading) {
+          const level = heading[1].length + 2;
+          html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+        } else {
+          html.push(`<p>${inlineMarkdown(line)}</p>`);
+        }
+      }
+
+      closeList();
+      if (inCode) html.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+      return html.join('');
+    }
+
+    function inlineMarkdown(text) {
+      return escapeHtml(text)
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     async function checkAvailability() {
       state.availableModelIds.clear();
+      state.cachedModelIds.clear();
       try {
         const cacheNames = await caches.keys();
         const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
@@ -1012,7 +1497,10 @@
           const keys = await cache.keys();
           for (const model of MODELS.filter(m => m.type === 'real')) {
             const isCached = keys.some(k => k.url.includes(model.repo.split('/')[1]));
-            if (isCached) state.availableModelIds.add(model.id);
+            if (isCached) {
+              state.availableModelIds.add(model.id);
+              state.cachedModelIds.add(model.id);
+            }
           }
         }
       } catch (e) {}
@@ -1024,6 +1512,7 @@
     function renderHub() {
       els.hub.innerHTML = MODELS.map(m => {
         const isAvailable = state.availableModelIds.has(m.id);
+        const isCached = state.cachedModelIds.has(m.id);
         const isActive = state.activeModelId === m.id;
         return `
           <div class="model-card ${isActive ? 'active' : ''} ${!isAvailable ? 'unavailable' : ''}" data-id="${m.id}">
@@ -1035,6 +1524,9 @@
               <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">${m.size}</span>
             </div>
             <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">${m.desc}</p>
+            <span style="font-size:11px; color:${isCached ? 'var(--success)' : navigator.onLine ? 'var(--warning)' : 'var(--text-muted)'}; font-weight:800; text-transform:uppercase;">
+              ${isCached ? 'Cached on this browser' : navigator.onLine ? 'Download available' : 'Needs Wi-Fi once'}
+            </span>
             <div class="progress-bar"><div class="progress-fill"></div></div>
             <button class="model-picker-btn" style="width:100%; justify-content:center; border-radius:10px;" 
               onclick="window.loadModel('${m.id}')" ${isActive || (!isAvailable && !navigator.onLine) ? 'disabled' : ''}>
@@ -1059,18 +1551,17 @@
       els.input.focus();
     };
 
+    window.clearPreview = () => {
+      els.preview.srcdoc = '';
+      els.previewPanel.classList.remove('visible');
+    };
+
     window.loadModel = loadModel;
 
     // --- Model Export Logic ---
     window.exportAllModels = async () => {
       showToast("Preparing export... this may take a moment.");
       try {
-        // Dynamically load JSZip for exporting
-        if (typeof JSZip === 'undefined') {
-          await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
-        }
-        
-        const zip = new JSZip();
         const cacheNames = await caches.keys();
         const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
         
@@ -1087,17 +1578,17 @@
           return;
         }
 
+        const files = [];
         for (const request of keys) {
           const response = await cache.match(request);
           const blob = await response.blob();
           const url = new URL(request.url);
-          // Create a clean path from the URL
           const path = url.pathname.replace(/^\//, '');
-          zip.file(path, blob);
+          files.push({ path, bytes: new Uint8Array(await blob.arrayBuffer()) });
         }
 
-        showToast("Compressing models...");
-        const content = await zip.generateAsync({type: "blob"});
+        showToast("Packing cached files...");
+        const content = createStoredZip(files);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(content);
         link.download = "dishonesty-models-portable.zip";
@@ -1108,6 +1599,74 @@
         showToast("Export failed: " + err.message);
       }
     };
+
+    function createStoredZip(files) {
+      const encoder = new TextEncoder();
+      const parts = [];
+      const central = [];
+      let offset = 0;
+
+      for (const file of files) {
+        const name = encoder.encode(file.path);
+        const crc = crc32(file.bytes);
+        const local = new Uint8Array(30 + name.length);
+        const view = new DataView(local.buffer);
+        view.setUint32(0, 0x04034b50, true);
+        view.setUint16(4, 20, true);
+        view.setUint16(8, 0, true);
+        view.setUint32(14, crc, true);
+        view.setUint32(18, file.bytes.length, true);
+        view.setUint32(22, file.bytes.length, true);
+        view.setUint16(26, name.length, true);
+        local.set(name, 30);
+        parts.push(local, file.bytes);
+
+        const dir = new Uint8Array(46 + name.length);
+        const dirView = new DataView(dir.buffer);
+        dirView.setUint32(0, 0x02014b50, true);
+        dirView.setUint16(4, 20, true);
+        dirView.setUint16(6, 20, true);
+        dirView.setUint32(16, crc, true);
+        dirView.setUint32(20, file.bytes.length, true);
+        dirView.setUint32(24, file.bytes.length, true);
+        dirView.setUint16(28, name.length, true);
+        dirView.setUint32(42, offset, true);
+        dir.set(name, 46);
+        central.push(dir);
+
+        offset += local.length + file.bytes.length;
+      }
+
+      const centralSize = central.reduce((sum, item) => sum + item.length, 0);
+      const end = new Uint8Array(22);
+      const endView = new DataView(end.buffer);
+      endView.setUint32(0, 0x06054b50, true);
+      endView.setUint16(8, files.length, true);
+      endView.setUint16(10, files.length, true);
+      endView.setUint32(12, centralSize, true);
+      endView.setUint32(16, offset, true);
+
+      return new Blob([...parts, ...central, end], { type: 'application/zip' });
+    }
+
+    function crc32(bytes) {
+      let crc = -1;
+      for (const byte of bytes) {
+        crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ byte) & 0xff];
+      }
+      return (crc ^ -1) >>> 0;
+    }
+
+    const CRC_TABLE = (() => {
+      const table = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        table[i] = c >>> 0;
+      }
+      return table;
+    })();
+
     window.clearCache = async () => {
       if (confirm("This will clear all downloaded models from your browser cache. Continue?")) {
         const cacheNames = await caches.keys();
