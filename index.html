@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f0f0f">
-  <title>Dishonesty · Real Local AI</title>
+  <meta name="theme-color" content="#090a0c">
+  <title>Dishonesty · Real Browser AI</title>
   <style>
     :root {
       --bg: #090a0c;
@@ -157,7 +157,7 @@
 
     .status-badge.webgpu { background: rgba(16, 185, 129, 0.15); color: var(--success); }
     .status-badge.cpu { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
-    .status-badge.offline { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .status-badge.offline { background: rgba(239, 68, 68, 0.15); color: var(--error); }
     .status-badge.download { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
 
     /* Main Content */
@@ -551,7 +551,7 @@
       <div class="sidebar-footer">
         <div id="protocol-warning" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid var(--error); padding:10px; border-radius:var(--radius); margin-bottom:12px; font-size:11px; color:var(--error); line-height:1.4;">
           <strong>Security Limitation</strong><br>
-          Real WebGPU models need a local server, but the bundled offline assistant works directly from this file.
+          Real WebGPU models need internet for their first download. Cached models may work later on the same browser.
         </div>
         <div class="engine-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -592,11 +592,11 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="m17 5 4 0"/><path d="M21 11v4"/><path d="m19 13 4 0"/></svg>
               </div>
               <h1>Real Local Intelligence</h1>
-              <p>Works from this file with a bundled offline assistant. When Wi-Fi is available, Qwen2.5 WebGPU models can be downloaded and cached.</p>
+              <p>Real ONNX language models running in Chrome with Transformers.js and WebGPU. Download once, then reuse from the browser cache when available.</p>
               
               <div class="hero-actions">
                 <button class="model-picker-btn" style="justify-content:center; border-radius:12px; padding:20px; background:var(--accent); color:white; border:none;" onclick="location.hash='#library'">
-                  <strong>Choose Engine</strong>
+                  <strong>Choose Real Model</strong>
                 </button>
                 <button class="model-picker-btn" style="justify-content:center; border-radius:12px; padding:20px;" onclick="setPrompt('How do I move these models to another device?')">
                   <strong>Portability Guide</strong>
@@ -606,7 +606,7 @@
                 <button onclick="setPrompt('Make me a study plan for tonight')">Study plan</button>
                 <button onclick="setPrompt('Summarize this: ')">Summarize</button>
                 <button onclick="setPrompt('Help me debug this error: ')">Debug</button>
-                <button onclick="setPrompt('What can you do without Wi-Fi?')">Offline check</button>
+                <button onclick="setPrompt('Which real model should I use?')">Pick model</button>
               </div>
             </div>
           </div>
@@ -634,7 +634,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div>
               <h1 style="font-size:32px; font-weight:900; letter-spacing:-0.04em;">Model Hub</h1>
-              <p style="color:var(--text-muted); font-size:16px;">Download, activate, and export real Qwen models.</p>
+              <p style="color:var(--text-muted); font-size:16px;">Download, activate, and export real ONNX language models.</p>
             </div>
             <button class="model-picker-btn" style="background:var(--accent); color:white; border:none;" onclick="window.exportAllModels()">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -647,13 +647,12 @@
           </div>
 
           <div style="margin-top:48px; padding:32px; border:2px dashed var(--border); border-radius:24px; text-align:center;" id="drop-zone">
-            <input type="file" id="file-input" accept=".zip" style="display:none;">
             <div style="margin-bottom:12px; color:var(--text-muted);">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6"/><path d="M6 20V10"/><path d="M18 20V4"/></svg>
             </div>
-            <h3 style="font-weight:800;">Import Local Model Pack</h3>
-            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Drop a .zip containing model.json from your folder to add a custom knowledge base.</p>
-            <button class="model-picker-btn" style="margin:0 auto;" onclick="$('#file-input').click()">Choose ZIP File</button>
+            <h3 style="font-weight:800;">Real Model Cache</h3>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Activate each model once while online. Chrome stores Transformers.js files in its cache when browser policy allows it.</p>
+            <button class="model-picker-btn" style="margin:0 auto;" onclick="window.exportAllModels()">Export Cached Model Files</button>
           </div>
         </div>
       </section>
@@ -721,18 +720,6 @@
     // --- State ---
     const MODELS = [
       {
-        id: 'pocket-offline',
-        name: 'Pocket Offline',
-        type: 'offline',
-        size: 'Bundled',
-        desc: 'A self-contained local assistant that works instantly with no Wi-Fi, server, install, or model download.',
-        corpus: [
-          "I am running in the bundled offline engine. I can help draft, summarize, brainstorm, make checklists, explain code, and keep answers practical even without network access.",
-          "Offline mode is private and portable. For stronger open-ended generation, connect once, open Model Hub, and download a Qwen model into the browser cache.",
-          "To move this app, unzip the folder and open index.html. The built-in assistant works immediately. Cached WebGPU models are browser-specific and usually need to be downloaded again on a new device."
-        ]
-      },
-      {
         id: 'qwen-0.5b',
         name: 'Qwen 2.5 0.5B',
         repo: 'onnx-community/Qwen2.5-0.5B-Instruct',
@@ -749,6 +736,16 @@
         type: 'real',
         size: '400MB',
         desc: 'Specialized for coding tasks. Fast and efficient.',
+        device: 'webgpu',
+        dtype: 'q4'
+      },
+      {
+        id: 'gemma-3-1b',
+        name: 'Gemma 3 1B IT',
+        repo: 'onnx-community/gemma-3-1b-it-ONNX-GQA',
+        type: 'real',
+        size: '~760MB',
+        desc: 'Google Gemma 3 1B Instruct, optimized by ONNX Community for Transformers.js and WebGPU.',
         device: 'webgpu',
         dtype: 'q4'
       }
@@ -779,36 +776,6 @@
       hint: $('#engine-hint')
     };
 
-    // --- ZIP Utilities ---
-    async function readZipModel(blob) {
-      const bytes = new Uint8Array(await blob.arrayBuffer());
-      const view = new DataView(bytes.buffer);
-      const decoder = new TextDecoder();
-      let eocd = -1;
-      for (let i = bytes.length - 22; i >= 0; i--) {
-        if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
-      }
-      if (eocd < 0) throw new Error("Invalid ZIP");
-      const count = view.getUint16(eocd + 10, true);
-      let ptr = view.getUint32(eocd + 16, true);
-      for (let i = 0; i < count; i++) {
-        const nameLen = view.getUint16(ptr + 28, true);
-        const extraLen = view.getUint16(ptr + 30, true);
-        const commLen = view.getUint16(ptr + 32, true);
-        const locOff = view.getUint32(ptr + 42, true);
-        const name = decoder.decode(bytes.slice(ptr + 46, ptr + 46 + nameLen));
-        if (name.toLowerCase().endsWith("model.json")) {
-          const locNameLen = view.getUint16(locOff + 26, true);
-          const locExtraLen = view.getUint16(locOff + 28, true);
-          const start = locOff + 30 + locNameLen + locExtraLen;
-          const data = bytes.slice(start, start + view.getUint32(ptr + 20, true));
-          return JSON.parse(decoder.decode(data));
-        }
-        ptr += 46 + nameLen + extraLen + commLen;
-      }
-      throw new Error("model.json not found");
-    }
-
     // --- Core Logic ---
     async function init() {
       if (location.protocol === 'file:') {
@@ -820,7 +787,6 @@
       await checkAvailability();
       renderHub();
       handleRouting();
-      await loadModel('pocket-offline');
       
       window.addEventListener('online', async () => {
         await checkAvailability();
@@ -829,35 +795,8 @@
       window.addEventListener('offline', async () => {
         await checkAvailability();
         renderHub();
-        if (!state.generator || MODELS.find(m => m.id === state.activeModelId)?.type === 'real') {
-          await loadModel('pocket-offline');
-        }
       });
       
-      $('#file-input').addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        showToast(`Importing ${file.name}...`);
-        try {
-          const data = await readZipModel(file);
-          const id = `custom-${Date.now()}`;
-          MODELS.push({
-            id,
-            name: data.name || file.name,
-            type: 'sim',
-            size: 'Local',
-            desc: data.description || 'Imported custom pack.',
-            corpus: data.corpus || []
-          });
-          renderHub();
-          loadModel(id);
-          showToast("Pack imported and activated!");
-          location.hash = '#chat';
-        } catch (err) {
-          showToast("Error: " + err.message);
-        }
-      });
-
       window.addEventListener('hashchange', handleRouting);
       
       els.input.addEventListener('input', () => {
@@ -922,8 +861,14 @@
         } catch (e) {
           console.error(e);
           if (!navigator.onLine) {
-            showToast("Wi-Fi is off. Using bundled offline assistant.");
-            return loadModel('pocket-offline');
+            showToast("Wi-Fi is off and this real model is not cached yet.");
+            state.activeModelId = null;
+            state.generator = null;
+            els.badge.textContent = 'Needs Download';
+            els.badge.className = 'status-badge download';
+            els.hint.textContent = 'Connect once to download a real model';
+            renderHub();
+            return;
           }
           try {
             showToast("WebGPU failed. Retrying in CPU mode...");
@@ -935,24 +880,20 @@
             els.badge.textContent = 'Real LLM (CPU)';
           } catch (cpuError) {
             console.error(cpuError);
-            showToast("Real model unavailable. Using offline assistant.");
-            return loadModel('pocket-offline');
+            showToast("Real model unavailable.");
+            state.activeModelId = null;
+            state.generator = null;
+            renderHub();
+            return;
           }
         }
-      } else if (model.type === 'offline') {
-        state.generator = { type: 'offline', model };
-        els.badge.textContent = 'Offline Ready';
-        els.badge.className = 'status-badge offline';
-        els.hint.textContent = 'Bundled offline assistant ready';
       } else {
-        // Simulation engine
-        state.generator = { type: 'sim', model };
-        els.badge.textContent = 'Sim Engine Active';
-        els.hint.textContent = 'Simulation Active';
+        showToast("Only real ONNX models are supported.");
+        return;
       }
 
       els.activeName.textContent = model.name;
-      els.modelInfo.textContent = `${model.name} · ${model.type === 'real' ? '4-bit WebGPU' : model.type === 'offline' ? 'Bundled offline' : 'Local Markov'}`;
+      els.modelInfo.textContent = `${model.name} · 4-bit WebGPU`;
       renderHub();
       showToast(`${model.name} is ready`);
     }
@@ -990,120 +931,46 @@
       els.hint.textContent = "Thinking...";
 
       try {
-        if (state.generator.type === 'offline' || state.generator.type === 'sim') {
-          const aiMsg = addMessage('ai', '', state.generator.type === 'offline' ? 'Pocket Offline' : 'Simulation Engine');
-          setTimeout(() => {
-            const reply = state.generator.type === 'offline'
-              ? generateOfflineReply(prompt)
-              : pickFromCorpus(state.generator.model.corpus);
-            aiMsg.update(reply, state.generator.type === 'offline' ? 'Pocket Offline · no Wi-Fi used' : 'Simulation Engine');
-            finishGen();
-          }, 220);
-        } else {
-          // Real LLM Generation with Streaming and TPS
-          const messages = [
-            { role: "system", content: "You are Dishonesty, a helpful but blunt local AI. You provide concise, direct answers." },
-            { role: "user", content: prompt }
-          ];
+        const messages = [
+          { role: "system", content: "You are Dishonesty, a helpful but blunt local AI. You provide concise, direct answers." },
+          { role: "user", content: prompt }
+        ];
 
-          const aiMsg = addMessage('ai', '...', 'Initializing...');
-          let fullText = "";
-          let tokenCount = 0;
-          const startTime = performance.now();
+        const aiMsg = addMessage('ai', '...', 'Initializing...');
+        let fullText = "";
+        let tokenCount = 0;
+        const startTime = performance.now();
 
-          const output = await state.generator(messages, {
-            max_new_tokens: 512,
-            temperature: state.temp,
-            on_chunk: (chunk) => {
-              const content = chunk.choices[0]?.delta?.content || "";
-              if (content) {
-                fullText += content;
-                tokenCount++;
-                const elapsed = (performance.now() - startTime) / 1000;
-                const tps = (tokenCount / elapsed).toFixed(1);
-                aiMsg.update(fullText, `${MODELS.find(m => m.id === state.activeModelId).name} · ${tps} t/s`);
-              }
+        const output = await state.generator(messages, {
+          max_new_tokens: 512,
+          temperature: state.temp,
+          on_chunk: (chunk) => {
+            const content = chunk.choices[0]?.delta?.content || "";
+            if (content) {
+              fullText += content;
+              tokenCount++;
+              const elapsed = (performance.now() - startTime) / 1000;
+              const tps = (tokenCount / elapsed).toFixed(1);
+              aiMsg.update(fullText, `${MODELS.find(m => m.id === state.activeModelId).name} · ${tps} t/s`);
             }
-          });
+          }
+        });
 
-          // Final update to ensure full text and correct meta
-          const totalElapsed = (performance.now() - startTime) / 1000;
-          const finalTps = (tokenCount / totalElapsed).toFixed(1);
-          aiMsg.update(fullText, `${MODELS.find(m => m.id === state.activeModelId).name} · Real Inference · ${finalTps} t/s`);
-          finishGen();
+        if (!fullText && output?.[0]?.generated_text) {
+          const generated = output[0].generated_text;
+          fullText = Array.isArray(generated) ? generated.at(-1)?.content || "" : String(generated);
         }
+
+        const totalElapsed = (performance.now() - startTime) / 1000;
+        const finalTps = tokenCount ? (tokenCount / totalElapsed).toFixed(1) : '--';
+        aiMsg.update(fullText || "The real model returned no text.", `${MODELS.find(m => m.id === state.activeModelId).name} · Real Inference · ${finalTps} t/s`);
+        finishGen();
       } catch (e) {
         console.error(e);
         addMessage('ai', "Error: Model failed to generate. Check console for details.");
         finishGen();
       }
     }
-
-    function pickFromCorpus(corpus = []) {
-      if (!corpus.length) return "No knowledge in this pack.";
-      return corpus[Math.floor(Math.random() * corpus.length)];
-    }
-
-    function generateOfflineReply(prompt) {
-      const text = prompt.trim();
-      const lower = text.toLowerCase();
-      const sentences = text.split(/[.!?]\s+/).map(s => s.trim()).filter(Boolean);
-      const words = lower.match(/[a-z0-9']+/g) || [];
-      const keywords = [...new Set(words.filter(w => w.length > 3 && !COMMON_WORDS.has(w)))].slice(0, 8);
-
-      if (lower.includes('summarize') || lower.includes('summary')) {
-        return [
-          "Offline summary:",
-          sentences.slice(0, 3).map((s, i) => `${i + 1}. ${s}`).join('\n') || "I need text to summarize.",
-          keywords.length ? `\nMain terms: ${keywords.join(', ')}.` : ""
-        ].join('\n');
-      }
-
-      if (lower.includes('code') || lower.includes('bug') || lower.includes('error') || lower.includes('fix')) {
-        return [
-          "Here is a practical offline debugging pass:",
-          "1. Reproduce the issue with the smallest input that still fails.",
-          "2. Check the exact error line and the value of each variable feeding it.",
-          "3. Verify assumptions around async work, missing files, network calls, and browser permissions.",
-          "4. Make one change at a time, then retest.",
-          keywords.length ? `\nLikely focus areas from your prompt: ${keywords.join(', ')}.` : ""
-        ].join('\n');
-      }
-
-      if (lower.includes('plan') || lower.includes('todo') || lower.includes('steps') || lower.includes('how do i')) {
-        return [
-          "A compact plan:",
-          "1. Define the outcome in one sentence.",
-          "2. List the few inputs or files you already have.",
-          "3. Do the smallest useful version first.",
-          "4. Test it in the place it will actually be used.",
-          "5. Polish only after the core path works.",
-          keywords.length ? `\nFor this request, I would keep an eye on: ${keywords.join(', ')}.` : ""
-        ].join('\n');
-      }
-
-      if (lower.includes('offline') || lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('portable')) {
-        return "This copy of Dishonesty is already running offline. The bundled Pocket Offline engine needs no Wi-Fi, no server, and no install. Real Qwen models still need a one-time online download in Model Hub, then the browser may reuse its cache on the same device.";
-      }
-
-      if (lower.includes('hello') || lower.includes('hi ')) {
-        return "Hey. I am running from the bundled offline engine right now, so I can respond without touching the network. Ask me to draft, summarize, plan, or troubleshoot something.";
-      }
-
-      const opener = keywords.length
-        ? `I can work with this offline. The key pieces I see are ${keywords.join(', ')}.`
-        : "I can work with this offline.";
-
-      return `${opener}\n\nMy best local answer: keep the goal concrete, break it into a short checklist, and verify each step before adding complexity. For stronger free-form generation, download a real model once from Model Hub when Wi-Fi is available.`;
-    }
-
-    const COMMON_WORDS = new Set([
-      'about', 'after', 'again', 'also', 'because', 'before', 'could', 'from',
-      'have', 'into', 'just', 'like', 'make', 'more', 'need', 'only', 'please',
-      'should', 'that', 'their', 'them', 'then', 'there', 'these', 'thing',
-      'this', 'want', 'what', 'when', 'where', 'which', 'with', 'without',
-      'work', 'would', 'your'
-    ]);
 
     function finishGen() {
       state.isGenerating = false;
@@ -1137,9 +1004,6 @@
 
     async function checkAvailability() {
       state.availableModelIds.clear();
-      for (const model of MODELS) {
-        if (model.type !== 'real') state.availableModelIds.add(model.id);
-      }
       try {
         const cacheNames = await caches.keys();
         const transformersCache = cacheNames.find(name => name.includes('transformers-cache'));
@@ -1166,7 +1030,7 @@
             <div style="display:flex; justify-content:space-between; align-items:flex-start;">
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <span class="model-title">${m.name}</span>
-                <span class="model-type ${m.type}">${m.type === 'real' ? 'Transformers · WebGPU' : m.type === 'offline' ? 'Bundled · Offline' : 'Simulation'}</span>
+                <span class="model-type ${m.type}">Transformers · WebGPU</span>
               </div>
               <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">${m.size}</span>
             </div>
