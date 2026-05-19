@@ -30,7 +30,15 @@ jobs:
         run: python -m pip install --upgrade huggingface_hub
 
       - name: Build app and model packs
-        run: python scripts/build_release_packs.py --download
+        run: python scripts/build_release_packs.py --download --megapack
+
+      - name: Upload megapack artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dishonesty-model-megapack
+          path: dist/models.zip
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Choose release tag
         id: release
@@ -56,7 +64,9 @@ jobs:
             - `dishonesty-model-pack-good-*.zip`: stronger general/coder pack, split into importable parts.
             - `dishonesty-model-pack-all-*.zip`: every listed model, split into importable parts.
 
+            The single-file megapack `models.zip` is too large for GitHub Release assets, so it is uploaded as the workflow artifact `dishonesty-model-megapack`.
+
             Import each model pack ZIP from Model Hub with **Import Release Pack**.
           files: |
-            dist/*.zip
+            dist/dishonesty-*.zip
             dist/*.txt

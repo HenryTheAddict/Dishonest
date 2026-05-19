@@ -32,6 +32,7 @@ GitHub Actions builds release assets:
 - `dishonesty-model-pack-small.zip`: Qwen 2.5 0.5B
 - `dishonesty-model-pack-good.zip`: Gemma 3 1B IT + Qwen Coder 0.5B
 - `dishonesty-model-pack-all.zip`: every listed model
+- `models.zip`: single-file megapack with every listed q4 model, uploaded as the `dishonesty-model-megapack` workflow artifact because it is too large for GitHub Release assets
 
 Model packs are stored ZIPs that can be imported from Model Hub with **Import Release Pack**. The importer writes files into the browser `transformers-cache`, then the app detects cached models automatically.
 

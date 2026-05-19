@@ -112,7 +112,7 @@ def write_one_pack(dist: Path, pack_name: str, models: list[dict], files: list[t
     return pack_path
 
 
-def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: list[dict], download: bool) -> None:
+def collect_pack_files(cache_dir: Path, models: list[dict], download: bool) -> list[tuple[Path, str, int]]:
     all_files = []
     for model in models:
         repo = model["repo"]
@@ -121,6 +121,11 @@ def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: 
             snapshot_model(repo, model_dir)
         if model_dir.exists():
             all_files.extend(iter_model_files(model_dir, repo))
+    return all_files
+
+
+def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: list[dict], download: bool) -> None:
+    all_files = collect_pack_files(cache_dir, models, download)
 
     parts: list[list[tuple[Path, str, int]]] = []
     current: list[tuple[Path, str, int]] = []
@@ -159,12 +164,31 @@ def write_pack(root: Path, dist: Path, cache_dir: Path, pack_name: str, models: 
     )
 
 
+def write_megapack(dist: Path, cache_dir: Path, download: bool) -> None:
+    models = PACKS["all"]
+    files = collect_pack_files(cache_dir, models, download)
+    path = dist / "models.zip"
+    manifest = {
+        "pack": "megapack",
+        "format": "transformers-cache-v1",
+        "models": models,
+        "import": "Put this file next to index.html as models.zip, serve the folder over HTTP, or import it manually from Model Hub.",
+    }
+
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_STORED, allowZip64=True) as zf:
+        zf.writestr("manifest.json", json.dumps(manifest, indent=2), compress_type=zipfile.ZIP_STORED)
+        for file_path, archive_name, _size in files:
+            zf.write(file_path, archive_name, compress_type=zipfile.ZIP_STORED)
+    print(f"wrote {path.name}: {path.stat().st_size:,} bytes")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".", type=Path)
     parser.add_argument("--dist", default="dist", type=Path)
     parser.add_argument("--cache", default=".model-cache", type=Path)
     parser.add_argument("--download", action="store_true")
+    parser.add_argument("--megapack", action="store_true")
     args = parser.parse_args()
 
     root = args.root.resolve()
@@ -178,6 +202,8 @@ def main() -> None:
     write_app_zip(root, dist)
     for pack_name, models in PACKS.items():
         write_pack(root, dist, cache_dir, pack_name, models, args.download)
+    if args.megapack:
+        write_megapack(dist, cache_dir, args.download)
 
 
 if __name__ == "__main__":
